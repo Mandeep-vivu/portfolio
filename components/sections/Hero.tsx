@@ -231,9 +231,7 @@ export default function Hero({ isLoading = false }: { isLoading?: boolean }) {
                     variant="outline"
                     size="lg"
                     className="group min-w-[215px] justify-center"
-                    onClick={(e) => {
-                      e.preventDefault();
-
+                    onClick={() => {
                       document
                         .querySelector("#contact")
                         ?.scrollIntoView({

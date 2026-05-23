@@ -15,7 +15,7 @@ export default function GlassCard({
   return (
     <motion.div
       onClick={onClick}
-      whileHover={hover ? { y: -4, scale: 1.01 } : undefined}
+      {...(hover && { whileHover: { y: -4, scale: 1.01 } })}
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={`
         glass relative overflow-hidden rounded-2xl border-white/10

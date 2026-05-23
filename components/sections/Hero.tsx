@@ -186,7 +186,7 @@ export default function Hero({ isLoading = false }: { isLoading?: boolean }) {
                 variants={item}
                 className="mt-8 max-w-[620px] space-y-3.5"
               >
-                <p className="text-[1rem] leading-[1.85] text-slate-300/85">
+                <p className="text-base leading-[1.85] text-slate-300/85">
                   Architecting intelligent systems at the intersection of{" "}
                   <span className="font-medium text-cyan-300">
                     AI research
@@ -198,10 +198,10 @@ export default function Hero({ isLoading = false }: { isLoading?: boolean }) {
                   .
                 </p>
 
-                <p className="text-[1rem] leading-[1.85] text-slate-300/85">
+                <p className="text-base leading-[1.85] text-slate-300/85">
                   Pursuing{" "}
                   <span className="font-medium text-purple-300">
-                    M.E. in AI & ML
+                    M.E. in AI &amp; ML
                   </span>{" "}
                   at Chandigarh University.
                 </p>
@@ -311,7 +311,7 @@ export default function Hero({ isLoading = false }: { isLoading?: boolean }) {
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className="glass absolute right-4 top-12 hidden rounded-xl border-accent/20 px-3 py-2 font-mono text-xs text-accent md:block lg:right-8"
+              className="glass absolute right-0 top-12 hidden max-w-[160px] overflow-hidden rounded-xl border-accent/20 px-3 py-2 font-mono text-xs text-accent md:block lg:right-8"
             >
               🧠 AI/ML Research
             </motion.div>
@@ -324,7 +324,7 @@ export default function Hero({ isLoading = false }: { isLoading?: boolean }) {
                 ease: "easeInOut",
                 delay: 1,
               }}
-              className="glass absolute bottom-14 left-4 hidden rounded-xl border-secondary/20 px-3 py-2 font-mono text-xs text-secondary md:block lg:left-8"
+              className="glass absolute bottom-14 left-0 hidden max-w-[160px] overflow-hidden rounded-xl border-secondary/20 px-3 py-2 font-mono text-xs text-secondary md:block lg:left-8"
             >
               ⚡ Full Stack Dev
             </motion.div>
@@ -337,7 +337,7 @@ export default function Hero({ isLoading = false }: { isLoading?: boolean }) {
                 ease: "easeInOut",
                 delay: 0.5,
               }}
-              className="glass absolute right-2 top-1/2 hidden rounded-xl border-primary/20 px-3 py-2 font-mono text-xs text-primary md:block lg:right-4"
+              className="glass absolute right-0 top-1/2 hidden max-w-[160px] overflow-hidden rounded-xl border-primary/20 px-3 py-2 font-mono text-xs text-primary md:block lg:right-4"
             >
               ☁️ Cloud Native
             </motion.div>

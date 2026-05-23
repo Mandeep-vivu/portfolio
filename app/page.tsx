@@ -27,7 +27,7 @@ export default function Home() {
     <>
       {!loaded && <LoadingScreen onComplete={() => setLoaded(true)} />}
 
-      <div className="relative min-h-screen">
+      <div className="relative min-h-screen" style={{ position: "relative", zIndex: 1 }}>
           {/* Animated background grid */}
           <div className="grid-bg" aria-hidden />
 

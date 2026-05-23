@@ -21,7 +21,7 @@ export default function SectionHeading({
       initial={{ opacity: 0, y: 30 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`mb-9 md:mb-11 ${centered ? "text-center" : ""}`}
+      className={`mb-6 md:mb-8 ${centered ? "text-center" : ""}`}
     >
       {/* Label */}
       <div className={`flex items-center gap-3 mb-4 ${centered ? "justify-center" : ""}`}>
@@ -46,7 +46,7 @@ export default function SectionHeading({
 
       {/* Subtitle */}
       {subtitle && (
-        <p className={`text-slate-400 text-base md:text-lg max-w-2xl leading-relaxed ${centered ? "mx-auto" : ""}`}>
+        <p className={`text-sm text-slate-400 md:text-base max-w-xl leading-relaxed ${centered ? "mx-auto" : ""}`}>
           {subtitle}
         </p>
       )}

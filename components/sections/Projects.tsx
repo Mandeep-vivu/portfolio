@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { ExternalLink, Star } from "lucide-react";
 import { FiGithub as Github } from "react-icons/fi";
@@ -179,7 +179,7 @@ export default function Projects() {
   return (
     <section
       id="projects"
-      className="section-padding relative overflow-hidden"
+      className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden"
     >
       {/* top line */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
@@ -213,14 +213,22 @@ export default function Projects() {
           transition={{ delay: 0.65 }}
           className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row"
         >
-          {!showAll && PROJECTS.length > 4 && (
-            <GlowButton
-              variant="outline"
-              onClick={() => setShowAll(true)}
-            >
-              View All Projects
-            </GlowButton>
-          )}
+          <AnimatePresence>
+            {!showAll && PROJECTS.length > 4 && (
+              <motion.div
+                initial={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                <GlowButton
+                  variant="outline"
+                  onClick={() => setShowAll(true)}
+                >
+                  View All Projects
+                </GlowButton>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <GlowButton
             href="https://github.com/Mandeep-vivu"

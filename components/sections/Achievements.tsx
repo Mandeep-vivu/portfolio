@@ -133,10 +133,14 @@ function AchievementCard({
 }
 
 export default function Achievements() {
+  const { ref: statsRef, inView: statsInView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
   return (
     <section
       id="achievements"
-      className="section-padding relative overflow-hidden"
+      className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden"
     >
       {/* top line */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-secondary/25 to-transparent" />
@@ -156,14 +160,16 @@ export default function Achievements() {
 
         {/* stats */}
         <motion.div
+          ref={statsRef}
           initial={{
             opacity: 0,
             y: 14,
           }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
+          animate={
+            statsInView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: 14 }
+          }
           transition={{
             duration: 0.4,
           }}

@@ -59,7 +59,7 @@ export default function GlowButton({
     <>
       {/* Shimmer overlay */}
       {hovered && (
-        <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_0.6s_ease]" />
+        <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
       )}
       <span className="relative z-10 flex items-center gap-2">{children}</span>
     </>

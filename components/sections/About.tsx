@@ -111,7 +111,7 @@ export default function About() {
   return (
     <section
       id="about"
-      className="section-padding relative overflow-hidden"
+      className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden"
     >
       {/* Glow */}
       <div className="pointer-events-none absolute right-0 top-1/2 h-96 w-96 rounded-full bg-secondary/5 blur-[100px]" />
@@ -157,7 +157,8 @@ export default function About() {
             {/* Timeline */}
             <div className="relative space-y-5 text-[0.94rem] leading-[1.9] text-slate-300">
               {/* line */}
-              <div className="absolute bottom-5 left-[21px] top-5 w-px bg-white/[0.08]" />
+              {/* Connector line centred under the 44px (w-11) icon */}
+              <div className="absolute bottom-5 left-[21px] top-5 w-px bg-white/[0.08]" aria-hidden="true" />
 
               {/* Block 1 */}
               <div className="group relative flex gap-5">
@@ -245,32 +246,32 @@ export default function About() {
 
               <pre className="overflow-x-auto p-5 font-mono text-[13px] leading-6 text-slate-300">
                 <code>
-                  {CODE_SNIPPET.split("\n").map((line, i) => (
-                    <div
-                      key={i}
-                      className="-mx-5 px-5 transition-colors duration-200 hover:bg-white/[0.02]"
-                    >
-                      {line.startsWith("//") ? (
-                        <span className="italic text-slate-500">
-                          {line}
-                        </span>
-                      ) : line.includes(":") ? (
-                        <>
-                          <span className="text-cyan-300">
-                            {line.split(":")[0]}
-                          </span>
+                  {CODE_SNIPPET.split("\n").map((line, i) => {
+                    // Split only on the FIRST colon to preserve array/object values
+                    const firstColonIdx = line.indexOf(":");
+                    const hasColon = firstColonIdx !== -1 && !line.startsWith("//") && !line.trimStart().startsWith("{") && !line.trimStart().startsWith("}") && !line.trimStart().startsWith("};");
+                    const key = hasColon ? line.slice(0, firstColonIdx) : null;
+                    const val = hasColon ? line.slice(firstColonIdx + 1) : null;
 
-                          <span className="mx-1 text-slate-500">:</span>
-
-                          <span className="text-emerald-400">
-                            {line.split(":").slice(1).join(":")}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-slate-300">{line}</span>
-                      )}
-                    </div>
-                  ))}
+                    return (
+                      <div
+                        key={i}
+                        className="-mx-5 px-5 transition-colors duration-200 hover:bg-white/[0.02]"
+                      >
+                        {line.startsWith("//") ? (
+                          <span className="italic text-slate-500">{line}</span>
+                        ) : hasColon && key !== null && val !== null ? (
+                          <>
+                            <span className="text-cyan-300">{key}</span>
+                            <span className="mx-0.5 text-slate-500">:</span>
+                            <span className="text-emerald-400">{val}</span>
+                          </>
+                        ) : (
+                          <span className="text-slate-400">{line}</span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </code>
               </pre>
             </div>

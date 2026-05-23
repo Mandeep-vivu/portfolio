@@ -12,7 +12,10 @@ export default function CustomCursor() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.matchMedia("(max-width: 768px)").matches) return;
+
+    // Use (pointer: fine) — correctly detects mouse vs touch,
+    // matching the CSS cursor:none rule in globals.css
+    if (!window.matchMedia("(pointer: fine)").matches) return;
 
     const onMove = (e: MouseEvent) => {
       pos.current = { x: e.clientX, y: e.clientY };
@@ -28,9 +31,9 @@ export default function CustomCursor() {
       if (dotRef.current) {
         dotRef.current.style.transform = `translate(${pos.current.x - 4}px, ${pos.current.y - 4}px)`;
       }
-      // Ring follows with lerp
-      ring.current.x += (pos.current.x - ring.current.x) * 0.12;
-      ring.current.y += (pos.current.y - ring.current.y) * 0.12;
+      // Ring follows with lerp — 0.15 feels snappier on high-DPI displays
+      ring.current.x += (pos.current.x - ring.current.x) * 0.15;
+      ring.current.y += (pos.current.y - ring.current.y) * 0.15;
       if (ringRef.current) {
         ringRef.current.style.transform = `translate(${ring.current.x - 20}px, ${ring.current.y - 20}px)`;
       }
@@ -39,13 +42,13 @@ export default function CustomCursor() {
 
     const onEnter = (e: MouseEvent) => {
       const t = e.target as HTMLElement;
-      if (t.closest("a, button, [data-cursor='pointer'], input, textarea")) {
+      if (t.closest("a, button, [data-cursor='pointer'], input, textarea, select")) {
         setIsHovering(true);
       }
     };
     const onLeave = () => setIsHovering(false);
 
-    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousemove", onMove, { passive: true });
     document.addEventListener("mouseover", onEnter);
     document.addEventListener("mouseout", onLeave);
     raf.current = requestAnimationFrame(loop);
@@ -62,11 +65,12 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Dot */}
+      {/* Dot — snaps instantly to cursor */}
       <div
         ref={dotRef}
         className="fixed top-0 left-0 z-[9999] pointer-events-none will-change-transform"
         style={{ width: 8, height: 8 }}
+        aria-hidden="true"
       >
         <div
           className="w-full h-full rounded-full transition-all duration-150"
@@ -79,11 +83,12 @@ export default function CustomCursor() {
           }}
         />
       </div>
-      {/* Ring */}
+      {/* Ring — lags behind with lerp for smooth feel */}
       <div
         ref={ringRef}
         className="fixed top-0 left-0 z-[9998] pointer-events-none will-change-transform"
         style={{ width: 40, height: 40 }}
+        aria-hidden="true"
       >
         <div
           className="w-full h-full rounded-full border transition-all duration-300"

@@ -366,7 +366,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="relative scroll-mt-24 overflow-hidden px-4 py-12 pb-18 sm:px-5 lg:px-6 lg:py-14 lg:pb-20"
+      className="min-h-[calc(100vh-64px)] flex flex-col justify-center relative overflow-hidden px-4 pt-5 pb-14 sm:px-5 lg:px-6 lg:pt-7 lg:pb-16"
     >
       {/* top line */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
@@ -603,16 +603,10 @@ export default function Contact() {
                 <motion.button
                   type="submit"
                   disabled={isSending}
-                  whileHover={
-                    isSending
-                      ? undefined
-                      : { y: -1 }
-                  }
-                  whileTap={
-                    isSending
-                      ? undefined
-                      : { scale: 0.985 }
-                  }
+                  {...(!isSending && {
+                    whileHover: { y: -1 },
+                    whileTap: { scale: 0.985 },
+                  })}
                   className="group relative mt-1 inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-primary/25 bg-gradient-to-r from-primary via-secondary to-accent px-5 py-3 text-[0.82rem] font-semibold text-white shadow-[0_0_28px_rgba(99,102,241,0.2)] transition-all duration-300 hover:shadow-[0_0_36px_rgba(99,102,241,0.28)] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-full" />

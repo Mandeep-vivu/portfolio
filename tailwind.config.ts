@@ -112,6 +112,10 @@ const config: Config = {
         "3xl": "1.5rem",
         "4xl": "2rem",
       },
+      maxWidth: {
+        "5xl": "1120px",
+        "6xl": "1240px",
+      },
       transitionDuration: {
         "400": "400ms",
         "600": "600ms",

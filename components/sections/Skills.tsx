@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Brain, CloudCog, Wrench } from "lucide-react";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -69,7 +69,7 @@ function getSkillContext(category: Skill["category"]) {
 
 function SkillCard({ skill, index }: { skill: Skill; index: number }) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
-  const Icon = ICON_MAP[skill.icon] || SiPython;
+  const Icon = ICON_MAP[skill.icon] ?? SiPython;
 
   return (
     <motion.div
@@ -115,7 +115,7 @@ export default function Skills() {
   const filtered = SKILLS.filter((skill) => skill.category === activeTab);
 
   return (
-    <section id="skills" className="section-padding relative overflow-hidden">
+    <section id="skills" className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden">
       <div className="pointer-events-none absolute left-0 top-1/2 h-80 w-80 rounded-full bg-primary/6 blur-[100px]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-accent/5 blur-[80px]" />
 
@@ -127,7 +127,8 @@ export default function Skills() {
           subtitle="A curated stack of tools and technologies I use to architect intelligent systems."
         />
 
-        <div className="mb-7 flex -mx-4 justify-start gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-3 sm:px-0">
+        {/* Tab row — hide-scrollbar prevents ugly mobile scrollbar */}
+        <div className="hide-scrollbar mb-7 flex -mx-4 justify-start gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-3 sm:px-0">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -135,7 +136,7 @@ export default function Skills() {
               className={`flex-shrink-0 flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-300 sm:px-5 sm:py-2.5 sm:text-sm ${
                 activeTab === tab.id
                   ? "border border-primary/50 bg-primary text-white shadow-neon-sm"
-                  : "glass text-slate-400 hover:border-primary/30 hover:text-white"
+                  : "glass border border-white/10 text-slate-400 hover:border-primary/30 hover:text-white"
               }`}
             >
               <tab.icon size={14} />
@@ -144,17 +145,21 @@ export default function Skills() {
           ))}
         </div>
 
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {filtered.map((skill, index) => (
-            <SkillCard key={skill.name} skill={skill} index={index} />
-          ))}
-        </motion.div>
+        {/* AnimatePresence for smooth tab transition without full re-mount */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {filtered.map((skill, index) => (
+              <SkillCard key={skill.name} skill={skill} index={index} />
+            ))}
+          </motion.div>
+        </AnimatePresence>
 
         <motion.div
           initial={{ opacity: 0 }}

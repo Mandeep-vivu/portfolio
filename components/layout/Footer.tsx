@@ -41,9 +41,9 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="w-10 h-10 rounded-xl glass flex items-center justify-center text-slate-400 hover:text-white hover:border-primary/50 hover:shadow-neon-sm transition-all duration-300 group"
+                className="group flex h-10 w-10 items-center justify-center rounded-xl border border-white/8 bg-white/[0.03] text-slate-400 transition-all duration-300 hover:border-primary/50 hover:bg-primary/10 hover:text-white hover:shadow-neon-sm"
               >
-                <Icon size={16} className="group-hover:scale-110 transition-transform" />
+                <Icon size={16} className="transition-transform duration-300 group-hover:scale-110" />
               </a>
             ))}
           </div>
@@ -58,7 +58,9 @@ export default function Footer() {
           </button>
         </div>
 
-        <div className="section-divider my-8" />
+        <div className="my-8 w-full">
+          <div className="section-divider" aria-hidden="true" />
+        </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
           <p className="text-slate-600 text-sm">

@@ -15,6 +15,7 @@ const TYPE_STYLES = {
   education: {
     icon: GraduationCap,
     dot: "bg-blue-500",
+    dotGlow: "shadow-[0_0_10px_rgba(59,130,246,0.8)]",
     border: "border-blue-500/10",
     badge:
       "bg-blue-500/8 text-blue-300 border-blue-500/10",
@@ -24,6 +25,7 @@ const TYPE_STYLES = {
   experience: {
     icon: BriefcaseBusiness,
     dot: "bg-violet-500",
+    dotGlow: "shadow-[0_0_10px_rgba(139,92,246,0.8)]",
     border: "border-violet-500/10",
     badge:
       "bg-violet-500/8 text-violet-300 border-violet-500/10",
@@ -33,6 +35,7 @@ const TYPE_STYLES = {
   leadership: {
     icon: Users,
     dot: "bg-cyan-500",
+    dotGlow: "shadow-[0_0_10px_rgba(6,182,212,0.8)]",
     border: "border-cyan-500/10",
     badge:
       "bg-cyan-500/8 text-cyan-300 border-cyan-500/10",
@@ -68,9 +71,9 @@ function TimelineEntry({
       className="relative grid grid-cols-1 gap-2.5 pl-10 md:grid-cols-[175px_minmax(0,1fr)] md:gap-4 md:pl-0"
     >
       {/* dot */}
-      <div className="absolute left-[15px] top-4 z-20 md:left-[180px]">
+      <div className="absolute left-[15px] top-4 z-20 md:left-[180px]" aria-hidden="true">
         <span
-          className={`block h-2 w-2 rounded-full ${style.dot} shadow-[0_0_10px_rgba(99,102,241,0.5)]`}
+          className={`block h-2 w-2 rounded-full ${style.dot} ${style.dotGlow}`}
         />
       </div>
 
@@ -118,7 +121,7 @@ export default function Timeline() {
   return (
     <section
       id="journey"
-      className="section-padding relative overflow-hidden"
+      className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden"
     >
       {/* glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[240px] w-[240px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[75px]" />
@@ -133,7 +136,10 @@ export default function Timeline() {
 
         <div className="relative mx-auto mt-6 max-w-4xl space-y-3">
           {/* line */}
-          <div className="absolute bottom-0 left-[18px] top-0 w-px bg-gradient-to-b from-primary/50 via-violet-500/30 to-transparent md:left-[184px]" />
+          <div
+            className="absolute bottom-0 left-[18px] top-0 w-px bg-gradient-to-b from-primary/50 via-violet-500/30 to-transparent md:left-[184px]"
+            aria-hidden="true"
+          />
 
           {TIMELINE.map((entry, index) => (
             <TimelineEntry

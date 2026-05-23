@@ -71,12 +71,12 @@ function ProjectCard({
       whileHover={{ y: -4 }}
       className="h-full"
     >
-      <div className="glass group relative flex h-full min-h-[285px] flex-col overflow-hidden rounded-2xl border border-white/10 transition-all duration-300 hover:border-primary/35 hover:shadow-card-hover">
+      <div className="glass group relative flex h-full min-h-[248px] sm:min-h-[285px] flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-white/10 transition-all duration-300 hover:border-primary/35 hover:shadow-card-hover">
         {/* top */}
         <div
-          className={`relative flex h-24 items-center justify-center overflow-hidden bg-gradient-to-br ${project.gradient}`}
+          className={`relative flex h-16 sm:h-24 items-center justify-center overflow-hidden bg-gradient-to-br ${project.gradient}`}
         >
-          <span className="text-[2.4rem]">
+          <span className="text-[1.5rem] sm:text-[2.4rem]">
             {project.icon}
           </span>
 
@@ -118,12 +118,12 @@ function ProjectCard({
         </div>
 
         {/* content */}
-        <div className="flex flex-1 flex-col px-4 pb-4 pt-3 sm:px-5 sm:pb-5">
-          <h3 className="mb-1.5 font-display text-[1.02rem] font-bold leading-snug text-white">
+        <div className="flex flex-1 flex-col px-3 pb-3 pt-2.5 sm:px-5 sm:pb-5 sm:pt-4">
+          <h3 className="mb-1.5 sm:mb-2 font-display text-[0.95rem] sm:text-[1.02rem] font-bold leading-snug text-white line-clamp-2">
             {project.title}
           </h3>
 
-          <p className="mb-3 flex-1 text-[0.84rem] leading-[1.65] text-slate-400">
+          <p className="mb-3 flex-1 text-[0.76rem] sm:text-[0.84rem] leading-5 sm:leading-[1.65] text-slate-400 line-clamp-3">
             {project.description}
           </p>
 
@@ -145,10 +145,11 @@ function ProjectCard({
               href={project.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-9 flex-1 items-center justify-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] text-[0.68rem] font-semibold text-slate-300 transition-all duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-white hover:shadow-neon-sm"
+              className="flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-[0.7rem] sm:text-xs font-semibold text-slate-300 transition-all duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-white hover:shadow-neon-sm active:scale-95"
             >
-              <Github size={12} />
-              GitHub
+              <Github size={11} className="sm:w-[13px] sm:h-[13px]" />
+              <span className="hidden sm:inline">GitHub</span>
+              <span className="sm:hidden">Code</span>
             </a>
 
             {project.demo && (
@@ -156,10 +157,11 @@ function ProjectCard({
                 href={project.demo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-9 flex-1 items-center justify-center gap-1 rounded-lg border border-primary/30 bg-primary/15 text-[0.68rem] font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
+                className="flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-primary/30 bg-primary/15 text-[0.7rem] sm:text-xs font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white active:scale-95"
               >
-                <ExternalLink size={12} />
-                Live Demo
+                <ExternalLink size={11} className="sm:w-[13px] sm:h-[13px]" />
+                <span className="hidden sm:inline">Live Demo</span>
+                <span className="sm:hidden">Demo</span>
               </a>
             )}
           </div>
@@ -179,7 +181,7 @@ export default function Projects() {
   return (
     <section
       id="projects"
-      className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden"
+      className="md:min-h-[calc(100dvh-64px)] md:flex md:flex-col md:justify-center section-padding relative overflow-hidden"
     >
       {/* top line */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
@@ -196,7 +198,7 @@ export default function Projects() {
         />
 
         {/* grid */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
           {displayed.map((project, i) => (
             <ProjectCard
               key={project.id}

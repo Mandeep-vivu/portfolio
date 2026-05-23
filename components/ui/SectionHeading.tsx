@@ -21,19 +21,19 @@ export default function SectionHeading({
       initial={{ opacity: 0, y: 30 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`mb-6 md:mb-8 ${centered ? "text-center" : ""}`}
+      className={`mb-4 sm:mb-6 md:mb-8 ${centered ? "text-center" : ""}`}
     >
       {/* Label */}
-      <div className={`flex items-center gap-3 mb-4 ${centered ? "justify-center" : ""}`}>
-        <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary" />
-        <span className="font-mono text-primary text-xs tracking-[0.2em] uppercase">
+      <div className={`flex items-center gap-2.5 sm:gap-3 mb-2 sm:mb-3 md:mb-4 ${centered ? "justify-center" : ""}`}>
+        <div className="h-px w-6 sm:w-8 bg-gradient-to-r from-transparent to-primary" />
+        <span className="font-mono text-primary text-[0.65rem] sm:text-xs tracking-[0.2em] uppercase">
           {label}
         </span>
-        <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary" />
+        <div className="h-px w-6 sm:w-8 bg-gradient-to-l from-transparent to-primary" />
       </div>
 
       {/* Title */}
-      <h2 className="font-display text-4xl md:text-5xl lg:text-[3.35rem] font-black text-white mb-4 leading-[1.05] tracking-tight">
+      <h2 className="font-display text-[clamp(1.75rem,6.5vw,3.35rem)] font-black text-white mb-1.5 sm:mb-2 md:mb-4 leading-[1.05] tracking-tight">
         {highlight ? (
           <>
             {title.replace(highlight, "")}{" "}
@@ -46,7 +46,7 @@ export default function SectionHeading({
 
       {/* Subtitle */}
       {subtitle && (
-        <p className={`text-sm text-slate-400 md:text-base max-w-xl leading-relaxed ${centered ? "mx-auto" : ""}`}>
+        <p className={`text-[0.8rem] sm:text-sm text-slate-400 md:text-base max-w-xl leading-relaxed ${centered ? "mx-auto" : ""}`}>
           {subtitle}
         </p>
       )}

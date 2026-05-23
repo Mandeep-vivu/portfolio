@@ -68,7 +68,7 @@ function TimelineEntry({
         delay: index * 0.035,
         ease: "easeOut",
       }}
-      className="relative grid grid-cols-1 gap-2.5 pl-10 md:grid-cols-[175px_minmax(0,1fr)] md:gap-4 md:pl-0"
+      className="relative grid grid-cols-1 gap-2.5 pl-10 sm:gap-2.5 md:grid-cols-[175px_minmax(0,1fr)] md:gap-4 md:pl-0"
     >
       {/* dot */}
       <div className="absolute left-[15px] top-4 z-20 md:left-[180px]" aria-hidden="true">
@@ -79,36 +79,37 @@ function TimelineEntry({
 
       {/* left meta */}
       <div className="flex flex-col md:items-end md:pr-4">
-        <p className="font-mono text-[0.58rem] tracking-[0.12em] text-slate-500">
+        <p className="font-mono text-[0.62rem] sm:text-[0.58rem] tracking-[0.12em] text-slate-500">
           {entry.year}
         </p>
 
         <span
-          className={`mt-1 inline-flex w-fit items-center gap-1 rounded-full border px-2 py-[3px] text-[0.54rem] font-medium tracking-wide ${style.badge}`}
+          className={`mt-1 inline-flex w-fit items-center gap-1 rounded-full border px-2 py-[3px] text-[0.58rem] sm:mt-1 sm:text-[0.54rem] font-medium tracking-wide ${style.badge}`}
         >
-          <Icon size={9} />
-          {style.label}
+          <Icon size={8} className="sm:w-[9px] sm:h-[9px]" />
+          <span className="hidden sm:inline">{style.label}</span>
+          <span className="sm:hidden">{style.label.split(' ')[0]}</span>
         </span>
       </div>
 
       {/* card */}
       <div
-        className={`glass relative overflow-hidden rounded-xl border bg-gradient-to-br from-white/[0.03] via-white/[0.008] to-transparent px-5 py-3.5 transition-all duration-300 hover:border-primary/20 hover:shadow-[0_0_22px_rgba(99,102,241,0.1)] ${style.border}`}
+        className={`glass relative overflow-hidden rounded-lg sm:rounded-xl border bg-gradient-to-br from-white/[0.03] via-white/[0.008] to-transparent px-3.5 py-3 sm:px-5 sm:py-3.5 transition-all duration-300 hover:border-primary/20 hover:shadow-[0_0_22px_rgba(99,102,241,0.1)] ${style.border}`}
       >
         {/* glow */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.04),transparent_35%)]" />
 
         {/* content */}
         <div className="relative z-10">
-          <h3 className="font-display text-[0.94rem] font-semibold leading-snug text-white">
+          <h3 className="font-display text-[0.88rem] sm:text-[0.94rem] font-semibold leading-snug text-white">
             {entry.title}
           </h3>
 
-          <p className="mt-0.5 text-[0.76rem] font-medium text-primary">
+          <p className="mt-1 text-[0.72rem] sm:text-[0.76rem] font-medium text-primary">
             {entry.org}
           </p>
 
-          <p className="mt-1.5 text-[0.79rem] leading-5 text-slate-400">
+          <p className="mt-1.5 text-[0.72rem] sm:text-[0.79rem] leading-5 text-slate-400">
             {entry.description}
           </p>
         </div>
@@ -121,7 +122,7 @@ export default function Timeline() {
   return (
     <section
       id="journey"
-      className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden"
+      className="md:min-h-[calc(100dvh-64px)] md:flex md:flex-col md:justify-center section-padding relative overflow-hidden"
     >
       {/* glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[240px] w-[240px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[75px]" />
@@ -134,7 +135,7 @@ export default function Timeline() {
           subtitle="From student to engineer."
         />
 
-        <div className="relative mx-auto mt-6 max-w-4xl space-y-3">
+        <div className="relative mx-auto mt-6 max-w-4xl space-y-4 sm:space-y-3">
           {/* line */}
           <div
             className="absolute bottom-0 left-[18px] top-0 w-px bg-gradient-to-b from-primary/50 via-violet-500/30 to-transparent md:left-[184px]"

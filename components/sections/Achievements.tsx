@@ -85,7 +85,7 @@ function AchievementCard({
       className="h-full"
     >
       <div
-        className={`glass relative flex h-full min-h-[148px] flex-col overflow-hidden rounded-xl border px-4 py-3.5 transition-all duration-300 hover:border-opacity-50 hover:shadow-[0_0_20px_rgba(99,102,241,0.12)] ${style.border}`}
+        className={`glass relative flex h-full min-h-[118px] sm:min-h-[148px] flex-col overflow-hidden rounded-lg sm:rounded-xl border px-3.5 py-3 sm:px-4 sm:py-3.5 transition-all duration-300 hover:border-opacity-50 hover:shadow-[0_0_20px_rgba(99,102,241,0.12)] ${style.border}`}
       >
         {/* top line */}
         <div
@@ -93,25 +93,26 @@ function AchievementCard({
         />
 
         {/* top */}
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/8 bg-white/[0.03] text-[1.15rem]">
+        <div className="mb-2 sm:mb-3 flex items-start justify-between gap-2 sm:gap-3">
+          <span className="flex h-6 w-6 sm:h-9 sm:w-9 items-center justify-center rounded text-[0.75rem] sm:text-[1.15rem]">
             {achievement.icon}
           </span>
 
           <span
-            className={`rounded-full border px-2 py-[3px] font-mono text-[0.56rem] tracking-wide ${style.labelColor}`}
+            className={`rounded-full border px-1.5 sm:px-2 py-[2px] sm:py-[3px] font-mono text-[0.48rem] sm:text-[0.56rem] tracking-wide flex-shrink-0 ${style.labelColor}`}
           >
-            {style.label}
+            <span className="hidden sm:inline">{style.label}</span>
+            <span className="sm:hidden">{style.label.split(' ')[0]}</span>
           </span>
         </div>
 
         {/* title */}
-        <h3 className="font-display text-[0.9rem] font-semibold leading-snug text-white">
+        <h3 className="font-display text-[0.86rem] sm:text-[0.9rem] font-semibold leading-snug text-white line-clamp-2">
           {achievement.title}
         </h3>
 
         {/* desc */}
-        <p className="mt-1.5 flex-1 text-[0.78rem] leading-5 text-slate-400">
+        <p className="mt-1.5 flex-1 text-[0.72rem] sm:text-[0.78rem] leading-5 text-slate-400 line-clamp-3">
           {achievement.description}
         </p>
 
@@ -121,10 +122,11 @@ function AchievementCard({
             href={achievement.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2.5 inline-flex items-center gap-1 text-[0.68rem] font-medium text-primary transition-colors hover:text-accent"
+            className="mt-2 inline-flex items-center gap-1 text-[0.64rem] sm:mt-2.5 sm:text-[0.68rem] font-medium text-primary transition-colors hover:text-accent active:scale-95"
           >
-            <ExternalLink size={10} />
-            View Certificate
+            <ExternalLink size={8} className="sm:w-[10px] sm:h-[10px]" />
+            <span className="hidden sm:inline">View Certificate</span>
+            <span className="sm:hidden">Cert</span>
           </a>
         )}
       </div>
@@ -140,7 +142,7 @@ export default function Achievements() {
   return (
     <section
       id="achievements"
-      className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden"
+      className="md:min-h-[calc(100dvh-64px)] md:flex md:flex-col md:justify-center section-padding relative overflow-hidden"
     >
       {/* top line */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-secondary/25 to-transparent" />
@@ -173,7 +175,7 @@ export default function Achievements() {
           transition={{
             duration: 0.4,
           }}
-          className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3"
+          className="mb-5 grid grid-cols-1 gap-2.5 min-[430px]:grid-cols-3 sm:mb-6 sm:gap-3"
         >
           {[
             {
@@ -205,11 +207,11 @@ export default function Achievements() {
             }) => (
               <div
                 key={label}
-                className="glass flex items-center gap-3 rounded-xl border border-white/8 px-4 py-3"
+                className="glass flex items-center justify-start gap-3 rounded-xl border border-white/8 p-3 text-left min-[430px]:flex-col min-[430px]:justify-center min-[430px]:gap-1.5 min-[430px]:text-center sm:flex-row sm:justify-start sm:gap-3 sm:px-4 sm:py-3 sm:text-left"
               >
                 <Icon
-                  size={18}
-                  className={color}
+                  size={16}
+                  className={`sm:w-[18px] sm:h-[18px] ${color}`}
                 />
 
                 <div>
@@ -219,7 +221,7 @@ export default function Achievements() {
                     {value}
                   </p>
 
-                  <p className="mt-1 text-[0.7rem] text-slate-500">
+                  <p className="mt-1 text-[0.68rem] sm:text-[0.7rem] leading-tight text-slate-500">
                     {label}
                   </p>
                 </div>

@@ -142,7 +142,7 @@ const itemVariants: Variants = {
 const panelClass = "surface-panel";
 
 const fieldClass =
-  "w-full rounded-lg border border-white/8 bg-white/[0.025] px-3.5 py-2.5 text-[0.82rem] text-white outline-none transition-all duration-300 placeholder:text-slate-600 focus:border-primary focus:bg-white/[0.04] focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60";
+  "w-full rounded-lg border border-white/8 bg-white/[0.025] px-3 sm:px-3.5 py-2 sm:py-2.5 text-[0.85rem] sm:text-base text-white outline-none transition-all duration-300 placeholder:text-slate-600 focus:border-primary focus:bg-white/[0.04] focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60";
 
 function ContactCard({
   icon,
@@ -263,7 +263,7 @@ function FormField({
 }: FormFieldProps) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-[0.62rem] font-semibold uppercase tracking-[0.13em] text-slate-400">
+      <span className="mb-1.5 block text-[0.58rem] sm:text-[0.62rem] font-semibold uppercase tracking-[0.13em] text-slate-400">
         {label}
 
         {required && (
@@ -283,7 +283,7 @@ function FormField({
           disabled={disabled}
           rows={5}
           placeholder={placeholder}
-          className={`${fieldClass} min-h-[118px] resize-none leading-6`}
+          className={`${fieldClass} min-h-[100px] sm:min-h-[118px] resize-none leading-6 text-[0.85rem] sm:text-base`}
         />
       ) : (
         <input
@@ -294,7 +294,7 @@ function FormField({
           required={required}
           disabled={disabled}
           placeholder={placeholder}
-          className={fieldClass}
+          className={`${fieldClass} text-[0.85rem] sm:text-base`}
         />
       )}
     </label>
@@ -366,7 +366,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="min-h-[calc(100vh-64px)] flex flex-col justify-center relative overflow-hidden px-4 pt-5 pb-14 sm:px-5 lg:px-6 lg:pt-7 lg:pb-16"
+      className="md:min-h-[calc(100dvh-64px)] md:flex md:flex-col md:justify-center relative overflow-hidden px-4 pt-5 pb-14 sm:px-5 lg:px-6 lg:pt-7 lg:pb-16"
     >
       {/* top line */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
@@ -417,11 +417,10 @@ export default function Contact() {
         </motion.div>
 
         {/* layout */}
-        <div className="grid w-full grid-cols-1 items-start gap-4 lg:grid-cols-5 lg:gap-5">
-          {/* left */}
+        <div className="grid w-full grid-cols-1 items-start gap-3 sm:gap-4 lg:grid-cols-5 lg:gap-5">
           <motion.aside
             variants={itemVariants}
-            className={`${panelClass} p-4 sm:p-5 lg:col-span-2`}
+            className={`${panelClass} p-3 sm:p-4 lg:p-5 lg:col-span-2`}
           >
             {/* availability */}
             <div className="mb-4 rounded-lg border border-emerald-400/12 bg-emerald-400/[0.05] p-3">
@@ -504,7 +503,7 @@ export default function Contact() {
           {/* form */}
           <motion.div
             variants={itemVariants}
-            className={`${panelClass} p-4 sm:p-5 lg:col-span-3 lg:p-5`}
+            className={`${panelClass} p-3 sm:p-4 lg:p-5 lg:col-span-3`}
           >
             {status === "sent" ? (
               <motion.div
@@ -540,15 +539,15 @@ export default function Contact() {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="space-y-4"
+                className="space-y-3 sm:space-y-4"
               >
                 {/* top */}
-                <div className="mb-4">
-                  <h3 className="font-display text-[1.3rem] font-bold text-white">
+                <div className="mb-3 sm:mb-4">
+                  <h3 className="font-display text-[1.15rem] sm:text-[1.3rem] font-bold text-white">
                     Start a Conversation
                   </h3>
 
-                  <p className="mt-1.5 max-w-lg text-[0.82rem] leading-5 text-slate-400">
+                  <p className="mt-1 sm:mt-1.5 max-w-lg text-[0.75rem] sm:text-[0.82rem] leading-5 text-slate-400">
                     Share a few details and
                     I&apos;ll reply with the
                     next step.
@@ -556,7 +555,7 @@ export default function Contact() {
                 </div>
 
                 {/* row */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2.5 sm:gap-3 sm:grid-cols-2">
                   <FormField
                     label="Name"
                     name="name"
@@ -607,7 +606,7 @@ export default function Contact() {
                     whileHover: { y: -1 },
                     whileTap: { scale: 0.985 },
                   })}
-                  className="group relative mt-1 inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-primary/25 bg-gradient-to-r from-primary via-secondary to-accent px-5 py-3 text-[0.82rem] font-semibold text-white shadow-[0_0_28px_rgba(99,102,241,0.2)] transition-all duration-300 hover:shadow-[0_0_36px_rgba(99,102,241,0.28)] disabled:cursor-not-allowed disabled:opacity-70"
+                  className="group relative mt-4 sm:mt-5 inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-primary/25 bg-gradient-to-r from-primary via-secondary to-accent px-4 sm:px-5 py-3 sm:py-3.5 text-[0.8rem] sm:text-[0.82rem] font-semibold text-white shadow-[0_0_28px_rgba(99,102,241,0.2)] transition-all duration-300 hover:shadow-[0_0_36px_rgba(99,102,241,0.28)] disabled:cursor-not-allowed disabled:opacity-70 active:scale-95 min-h-[44px] sm:min-h-auto"
                 >
                   <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
 
@@ -615,21 +614,23 @@ export default function Contact() {
                     {isSending ? (
                       <>
                         <Loader2
-                          size={16}
-                          className="animate-spin"
+                          size={15}
+                          className="animate-spin sm:w-[16px] sm:h-[16px]"
                         />
-                        Sending
+                        <span className="hidden sm:inline">Sending</span>
+                        <span className="sm:hidden">Send...</span>
                       </>
                     ) : (
                       <>
-                        <Send size={16} />
-                        Send Message
+                        <Send size={15} className="sm:w-[16px] sm:h-[16px]" />
+                        <span className="hidden sm:inline">Send Message</span>
+                        <span className="sm:hidden">Send</span>
                       </>
                     )}
                   </span>
                 </motion.button>
 
-                <p className="pt-0.5 text-center font-mono text-[0.62rem] text-slate-600">
+                <p className="pt-1 text-center font-mono text-[0.55rem] sm:text-[0.62rem] text-slate-600">
                   {"// response within 24 hours"}
                 </p>
               </form>

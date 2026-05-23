@@ -78,22 +78,22 @@ function SkillCard({ skill, index }: { skill: Skill; index: number }) {
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.04, duration: 0.45, ease: "easeOut" }}
     >
-      <GlassCard glow className="group p-4 sm:p-5">
-        <div className="mb-4 flex items-center gap-4">
+      <GlassCard glow className="group p-3.5 sm:p-5">
+        <div className="mb-2.5 sm:mb-4 flex items-center gap-2.5 sm:gap-4">
           <div
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-300 group-hover:scale-110"
+            className="flex h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-300 group-hover:scale-110"
             style={{ background: `${skill.color}18`, border: `1px solid ${skill.color}40` }}
           >
-            <Icon size={19} style={{ color: skill.color }} />
+            <Icon size={15} className="sm:scale-125" style={{ color: skill.color }} />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="mb-1 flex items-center justify-between gap-3">
-              <p className="truncate text-sm font-semibold text-white">{skill.name}</p>
-              <p className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[0.65rem] text-slate-400">
+            <div className="mb-0.5 flex items-center justify-between gap-2 sm:gap-3">
+              <p className="truncate text-[0.82rem] sm:text-sm font-semibold text-white">{skill.name}</p>
+              <p className="rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 sm:px-2 sm:py-0.5 font-mono text-[0.58rem] sm:text-[0.65rem] text-slate-400 flex-shrink-0">
                 {skill.level}%
               </p>
             </div>
-            <p className="truncate text-xs text-slate-500">{getSkillContext(skill.category)}</p>
+            <p className="truncate text-[0.68rem] sm:text-xs text-slate-500">{getSkillContext(skill.category)}</p>
           </div>
         </div>
 
@@ -115,7 +115,7 @@ export default function Skills() {
   const filtered = SKILLS.filter((skill) => skill.category === activeTab);
 
   return (
-    <section id="skills" className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden">
+    <section id="skills" className="md:min-h-[calc(100dvh-64px)] md:flex md:flex-col md:justify-center section-padding relative overflow-hidden">
       <div className="pointer-events-none absolute left-0 top-1/2 h-80 w-80 rounded-full bg-primary/6 blur-[100px]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-accent/5 blur-[80px]" />
 
@@ -128,12 +128,12 @@ export default function Skills() {
         />
 
         {/* Tab row — hide-scrollbar prevents ugly mobile scrollbar */}
-        <div className="hide-scrollbar mb-7 flex -mx-4 justify-start gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-3 sm:px-0">
+        <div className="hide-scrollbar mb-6 sm:mb-7 flex -mx-4 justify-start gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-3 sm:px-0">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-shrink-0 flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-300 sm:px-5 sm:py-2.5 sm:text-sm ${
+              className={`flex-shrink-0 flex min-h-[42px] items-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl px-3.5 sm:px-4 py-2 text-[0.76rem] sm:text-xs font-semibold transition-all duration-300 sm:py-2.5 sm:text-sm whitespace-nowrap active:scale-95 ${
                 activeTab === tab.id
                   ? "border border-primary/50 bg-primary text-white shadow-neon-sm"
                   : "glass border border-white/10 text-slate-400 hover:border-primary/30 hover:text-white"
@@ -153,7 +153,7 @@ export default function Skills() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            className="grid grid-cols-1 min-[450px]:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4"
           >
             {filtered.map((skill, index) => (
               <SkillCard key={skill.name} skill={skill} index={index} />

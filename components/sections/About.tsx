@@ -111,13 +111,13 @@ export default function About() {
   return (
     <section
       id="about"
-      className="min-h-[calc(100vh-64px)] flex flex-col justify-center section-padding relative overflow-hidden"
+      className="md:min-h-[calc(100dvh-64px)] md:flex md:flex-col md:justify-center section-padding relative overflow-hidden"
     >
       {/* Glow */}
       <div className="pointer-events-none absolute right-0 top-1/2 h-96 w-96 rounded-full bg-secondary/5 blur-[100px]" />
 
       <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[1.35fr_0.95fr] lg:gap-12">
+        <div className="grid grid-cols-1 items-start gap-6 sm:gap-10 lg:grid-cols-[1.35fr_0.95fr] lg:gap-12">
           {/* LEFT */}
           <motion.div
             ref={ref}
@@ -127,25 +127,25 @@ export default function About() {
             className="relative flex h-full flex-col"
           >
             {/* Header */}
-            <div className="mb-7">
-              <div className="mb-3 flex items-center gap-3">
-                <div className="h-px w-6 bg-indigo-500/50" />
+            <div className="mb-5 sm:mb-7">
+              <div className="mb-2.5 sm:mb-3 flex items-center gap-2.5 sm:gap-3">
+                <div className="h-px w-5 sm:w-6 bg-indigo-500/50" />
 
-                <span className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">
+                <span className="text-[0.6rem] sm:text-xs font-bold uppercase tracking-[0.2em] text-indigo-400">
                   About Me
                 </span>
 
-                <div className="h-px w-6 bg-indigo-500/50" />
+                <div className="h-px w-5 sm:w-6 bg-indigo-500/50" />
               </div>
 
-              <h2 className="font-display text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl">
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.05] tracking-tight text-white">
                 Engineered to{" "}
                 <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                   Innovate
                 </span>
               </h2>
 
-              <p className="mt-4 max-w-[90%] text-[0.98rem] leading-[1.75] text-slate-400">
+              <p className="mt-3 sm:mt-4 max-w-[94%] text-[0.92rem] sm:text-[0.98rem] leading-7 sm:leading-[1.75] text-slate-400">
                 Computer Engineer turned AI specialist — building systems that
                 think, learn, and scale.
               </p>
@@ -155,21 +155,21 @@ export default function About() {
             <div className="pointer-events-none absolute left-0 top-1/2 -z-10 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-indigo-500/5 blur-[120px]" />
 
             {/* Timeline */}
-            <div className="relative space-y-5 text-[0.94rem] leading-[1.9] text-slate-300">
+            <div className="relative space-y-5 text-[0.95rem] leading-[1.9] text-slate-300">
               {/* line */}
-              {/* Connector line centred under the 44px (w-11) icon */}
-              <div className="absolute bottom-5 left-[21px] top-5 w-px bg-white/[0.08]" aria-hidden="true" />
+              {/* Connector line centred under the icon */}
+              <div className="absolute bottom-5 left-[19px] sm:left-[21px] top-5 w-px bg-white/[0.08]" aria-hidden="true" />
 
               {/* Block 1 */}
-              <div className="group relative flex gap-5">
-                <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0a0a0e] shadow-[0_0_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:border-indigo-400/30 group-hover:bg-indigo-400/5">
+              <div className="group relative flex gap-4 sm:gap-5">
+                <div className="relative z-10 flex h-8 w-8 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0a0a0e] shadow-[0_0_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:border-indigo-400/30 group-hover:bg-indigo-400/5">
                   <User
-                    size={18}
-                    className="text-indigo-400/80 transition-colors group-hover:text-indigo-400"
+                    size={14}
+                    className="text-indigo-400/80 transition-colors group-hover:text-indigo-400 sm:w-[18px] sm:h-[18px]"
                   />
                 </div>
 
-                <div className="pt-0.5 text-slate-400">
+                <div className="pt-0.5 text-[0.95rem] leading-8 text-slate-400 sm:text-base sm:leading-[1.9]">
                   <p>
                     I&apos;m{" "}
                     <span className="font-semibold text-slate-200 transition-colors group-hover:text-indigo-300">
@@ -186,15 +186,15 @@ export default function About() {
               </div>
 
               {/* Block 2 */}
-              <div className="group relative flex gap-5">
-                <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0a0a0e] shadow-[0_0_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:border-cyan-400/30 group-hover:bg-cyan-400/5">
+              <div className="group relative flex gap-4 sm:gap-5">
+                <div className="relative z-10 flex h-8 w-8 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0a0a0e] shadow-[0_0_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:border-cyan-400/30 group-hover:bg-cyan-400/5">
                   <Rocket
-                    size={18}
-                    className="text-cyan-400/80 transition-colors group-hover:text-cyan-400"
+                    size={14}
+                    className="text-cyan-400/80 transition-colors group-hover:text-cyan-400 sm:w-[18px] sm:h-[18px]"
                   />
                 </div>
 
-                <div className="pt-0.5 text-slate-400">
+                <div className="pt-0.5 text-[0.95rem] leading-8 text-slate-400 sm:text-base sm:leading-[1.9]">
                   <p>
                     I specialize in building{" "}
                     <span className="font-medium text-cyan-400">
@@ -207,15 +207,15 @@ export default function About() {
               </div>
 
               {/* Block 3 */}
-              <div className="group relative flex gap-5">
-                <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0a0a0e] shadow-[0_0_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:border-purple-400/30 group-hover:bg-purple-400/5">
+              <div className="group relative flex gap-4 sm:gap-5">
+                <div className="relative z-10 flex h-8 w-8 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0a0a0e] shadow-[0_0_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:border-purple-400/30 group-hover:bg-purple-400/5">
                   <Target
-                    size={18}
-                    className="text-purple-400/80 transition-colors group-hover:text-purple-400"
+                    size={14}
+                    className="text-purple-400/80 transition-colors group-hover:text-purple-400 sm:w-[18px] sm:h-[18px]"
                   />
                 </div>
 
-                <div className="pt-0.5 text-slate-400">
+                <div className="pt-0.5 text-[0.95rem] leading-8 text-slate-400 sm:text-base sm:leading-[1.9]">
                   <p>
                     My engineering mindset:{" "}
                     <span className="font-medium tracking-wide text-purple-400">
@@ -244,7 +244,7 @@ export default function About() {
                 </div>
               </div>
 
-              <pre className="overflow-x-auto p-5 font-mono text-[13px] leading-6 text-slate-300">
+              <pre className="overflow-x-auto p-3 sm:p-5 font-mono text-[10px] sm:text-[13px] leading-6 text-slate-300">
                 <code>
                   {CODE_SNIPPET.split("\n").map((line, i) => {
                     // Split only on the FIRST colon to preserve array/object values
@@ -293,18 +293,18 @@ export default function About() {
                 >
                   <GlassCard
                     glow
-                    className="counter-card group relative flex h-full min-h-[130px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-3 text-center transition-all duration-300 hover:bg-white/[0.04] sm:p-4"
+                    className="counter-card group relative flex h-full min-h-[85px] sm:min-h-[130px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-2.5 text-center transition-all duration-300 hover:bg-white/[0.04] sm:p-4"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-                    <div className="relative z-10 mb-2 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-4xl font-black tracking-tight text-transparent transition-all duration-300 group-hover:from-primary group-hover:to-accent sm:text-5xl">
+                    <div className="relative z-10 mb-1 sm:mb-2 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-2xl sm:text-5xl font-black tracking-tight text-transparent transition-all duration-300 group-hover:from-primary group-hover:to-accent">
                       <AnimatedCounter
                         value={stat.value}
                         suffix={stat.suffix}
                       />
                     </div>
 
-                    <p className="relative z-10 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-slate-400 transition-colors group-hover:text-slate-300 sm:text-xs">
+                    <p className="relative z-10 text-[0.55rem] sm:text-xs font-bold uppercase tracking-[0.15em] text-slate-400 transition-colors group-hover:text-slate-300">
                       {stat.label}
                     </p>
                   </GlassCard>
@@ -327,22 +327,22 @@ export default function About() {
                 >
                   <GlassCard
                     glow
-                    className={`group flex h-full min-h-[175px] flex-col rounded-2xl border bg-white/[0.02] p-4 transition-all duration-300 hover:bg-white/[0.04] sm:p-5 ${
+                    className={`group flex h-full min-h-[110px] sm:min-h-[175px] flex-col rounded-2xl border bg-white/[0.02] p-3 sm:p-5 transition-all duration-300 hover:bg-white/[0.04] ${
                       area.bg.split(" ")[1]
                     }`}
                   >
-                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-110">
+                    <div className="mb-2 sm:mb-4 inline-flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-white/5 ring-1 ring-inset ring-white/10 transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-110">
                       <area.icon
-                        size={22}
-                        className={`${area.color}`}
+                        size={16}
+                        className={`sm:w-[22px] sm:h-[22px] ${area.color}`}
                       />
                     </div>
 
-                    <h3 className="mb-2 font-display text-lg font-bold tracking-tight text-slate-100 transition-colors group-hover:text-white">
+                    <h3 className="mb-1 sm:mb-2 font-display text-[0.85rem] sm:text-lg font-bold tracking-tight text-slate-100 transition-colors group-hover:text-white">
                       {area.title}
                     </h3>
 
-                    <p className="mt-auto text-sm leading-relaxed text-slate-400 transition-colors group-hover:text-slate-300">
+                    <p className="mt-auto text-[0.65rem] sm:text-sm leading-snug sm:leading-relaxed text-slate-400 transition-colors group-hover:text-slate-300">
                       {area.desc}
                     </p>
                   </GlassCard>

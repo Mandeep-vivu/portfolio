@@ -1,15 +1,33 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
-import { Menu, X, Terminal } from "lucide-react";
+import {
+  Award,
+  Brain,
+  FolderGit2,
+  Menu,
+  Route,
+  Send,
+  Terminal,
+  UserRound,
+  X,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-const NAV_LINKS = [
-  { label: "About", href: "#about" },
-  { label: "Skills", href: "#skills" },
-  { label: "Projects", href: "#projects" },
-  { label: "Journey", href: "#journey" },
-  { label: "Achievements", href: "#achievements" },
-  { label: "Contact", href: "#contact" },
+type NavLink = {
+  label: string;
+  href: string;
+  cue: string;
+  icon: LucideIcon;
+};
+
+const NAV_LINKS: NavLink[] = [
+  { label: "About", href: "#about", cue: "Profile", icon: UserRound },
+  { label: "Skills", href: "#skills", cue: "Stack", icon: Brain },
+  { label: "Projects", href: "#projects", cue: "Builds", icon: FolderGit2 },
+  { label: "Journey", href: "#journey", cue: "Path", icon: Route },
+  { label: "Achievements", href: "#achievements", cue: "Wins", icon: Award },
+  { label: "Contact", href: "#contact", cue: "Reach", icon: Send },
 ];
 
 export default function Navbar() {
@@ -17,7 +35,7 @@ export default function Navbar() {
   const [active, setActive] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const isScrollingRef = useRef(false);
-  const scrollCleanupRef = useRef<(() => void) | null>(null);
+  const scrollCleanupRef = useRef<number | null>(null);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -27,16 +45,53 @@ export default function Navbar() {
   });
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener("scroll", onScroll);
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 768px)");
+    const closeOnDesktop = () => {
+      if (query.matches) setMobileOpen(false);
+    };
+
+    query.addEventListener("change", closeOnDesktop);
+    return () => query.removeEventListener("change", closeOnDesktop);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (scrollCleanupRef.current) {
+        window.clearTimeout(scrollCleanupRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
     const handleScroll = () => {
       if (isScrollingRef.current) return;
 
-      const scrollPosition = window.scrollY + 120; // 120px offset for precise active detection
+      const scrollPosition = window.scrollY + window.innerHeight * 0.35; // 35% viewport offset for precise active detection on mobile & desktop
 
       let currentActive = "";
       for (const link of NAV_LINKS) {
@@ -68,106 +123,100 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const getHeaderOffset = () => {
+    const nav = document.querySelector("[data-navbar-inner]") as HTMLElement | null;
+    const navBottom = nav?.getBoundingClientRect().bottom ?? 64;
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+
+    return navBottom + (isMobile ? 12 : 20);
+  };
+
   const scrollTo = (href: string) => {
-    // If there is an active scroll listener, clean it up immediately first
     if (scrollCleanupRef.current) {
-      scrollCleanupRef.current();
+      window.clearTimeout(scrollCleanupRef.current);
     }
 
     isScrollingRef.current = true;
     setActive(href);
     setMobileOpen(false);
 
-    const target = document.querySelector(href) as HTMLElement;
-    if (target) {
-      const navbarHeight = 64; // Exactly match fixed navbar height (64px) to align section perfectly in viewport
-      const elementPosition = target.getBoundingClientRect().top + window.scrollY;
-      const offsetPosition = elementPosition - navbarHeight;
+    window.requestAnimationFrame(() => {
+      const target = document.querySelector(href) as HTMLElement;
+      if (target) {
+        const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - getHeaderOffset());
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
+        window.scrollTo({
+          top,
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+        });
 
-    let scrollTimeout: NodeJS.Timeout;
-    
-    const cleanup = () => {
-      window.removeEventListener("scroll", checkScrollEnd);
-      clearTimeout(fallbackTimeout);
+        window.history.replaceState(null, "", href);
+      }
+    });
+
+    scrollCleanupRef.current = window.setTimeout(() => {
       isScrollingRef.current = false;
       setActive(href);
       scrollCleanupRef.current = null;
-    };
-
-    const checkScrollEnd = () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(cleanup, 100);
-    };
-
-    // Fallback: in case no scrolling occurs (already at target or near it)
-    const fallbackTimeout = setTimeout(cleanup, 1000);
-
-    // Save cleanup function for cancellation
-    scrollCleanupRef.current = cleanup;
-
-    window.addEventListener("scroll", checkScrollEnd, { passive: true });
+    }, 1200);
   };
 
   const scrollToTop = () => {
-    // If there is an active scroll listener, clean it up immediately first
     if (scrollCleanupRef.current) {
-      scrollCleanupRef.current();
+      window.clearTimeout(scrollCleanupRef.current);
     }
 
     isScrollingRef.current = true;
     setActive("");
     setMobileOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
 
-    let scrollTimeout: NodeJS.Timeout;
-    
-    const cleanup = () => {
-      window.removeEventListener("scroll", checkScrollEnd);
-      clearTimeout(fallbackTimeout);
+    window.requestAnimationFrame(() => {
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+      window.history.replaceState(null, "", window.location.pathname);
+    });
+
+    scrollCleanupRef.current = window.setTimeout(() => {
       isScrollingRef.current = false;
       setActive("");
       scrollCleanupRef.current = null;
-    };
-
-    const checkScrollEnd = () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(cleanup, 100);
-    };
-
-    // Fallback: in case already at top
-    const fallbackTimeout = setTimeout(cleanup, 1000);
-
-    // Save cleanup function for cancellation
-    scrollCleanupRef.current = cleanup;
-
-    window.addEventListener("scroll", checkScrollEnd, { passive: true });
+    }, 900);
   };
 
   return (
     <>
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 rounded-none border-x-0 border-t-0 transition-all duration-300 ${
-          scrolled
-            ? "glass-dark border-b border-primary/20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
-            : "glass-dark border-b border-white/5 shadow-[0_2px_20px_rgba(0,0,0,0.2)]"
-        }`}
+        className="fixed left-3 right-3 top-3 z-50 rounded-2xl border-x-0 border-t-0 md:left-0 md:right-0 md:top-0 md:rounded-none"
+        aria-label="Primary navigation"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between gap-4">
+        <div
+          data-navbar-inner
+          className={`transition-all duration-300 border-x border-t glass-dark md:rounded-none md:border-x-0 md:border-t-0 ${
+            scrolled
+              ? "border-primary/25 shadow-[0_12px_34px_rgba(0,0,0,0.42)] md:border-b md:shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+              : "border-white/8 shadow-[0_10px_28px_rgba(0,0,0,0.3)] md:border-b md:border-white/5 md:shadow-[0_2px_20px_rgba(0,0,0,0.2)]"
+          }`}
+        >
+          <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex h-14 items-center justify-between gap-3 md:h-16 md:gap-4">
             {/* Logo */}
             <button
               onClick={scrollToTop}
-              className="group flex items-center gap-2"
+              className="group flex min-w-0 items-center gap-2.5"
+              aria-label="Go to top"
             >
-              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-neon-sm group-hover:shadow-neon-md transition-all duration-300">
+              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-neon-sm transition-all duration-300 group-hover:shadow-neon-md">
                 <span className="font-display font-black text-white text-sm">MS</span>
               </div>
+              <span className="min-w-0 text-left sm:hidden">
+                <span className="block font-display text-[0.94rem] font-bold leading-none text-white">
+                  Mandeep<span className="text-primary">.</span>
+                </span>
+                <span className="mt-0.5 block font-mono text-[0.54rem] uppercase tracking-[0.16em] text-slate-500">
+                  AI/ML
+                </span>
+              </span>
               <span className="hidden font-display font-bold text-white transition-colors duration-300 group-hover:text-primary sm:block">
                 Mandeep<span className="text-primary">.</span>
               </span>
@@ -210,7 +259,10 @@ export default function Navbar() {
 
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="md:hidden p-2 rounded-lg glass text-slate-400 hover:text-white transition-all"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 transition-all hover:border-primary/40 hover:text-white active:scale-95 md:hidden"
+                aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-navigation"
               >
                 {mobileOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
@@ -218,48 +270,99 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Dynamic scroll progress bar */}
-        <motion.div
-          className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary via-accent to-secondary origin-left opacity-90 shadow-[0_1px_4px_rgba(99,102,241,0.4)]"
-          style={{ scaleX }}
-        />
+          {/* Dynamic scroll progress bar */}
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary via-accent to-secondary origin-left opacity-90 shadow-[0_1px_4px_rgba(99,102,241,0.4)]"
+            style={{ scaleX }}
+          />
+        </div>
       </motion.nav>
 
       {/* Mobile Menu */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.25 }}
-            className="fixed top-16 left-0 right-0 z-40 glass-dark border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] p-4"
-          >
-            {NAV_LINKS.map((link, i) => (
-              <motion.button
-                key={link.href}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
-                onClick={() => scrollTo(link.href)}
-                className={`block w-full text-left px-4 py-3 rounded-lg mb-1 text-sm font-medium transition-all ${
-                  active === link.href
-                    ? "bg-primary/15 text-white border border-primary/30 shadow-neon-sm"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {link.label}
-              </motion.button>
-            ))}
-            <a
-              href="https://www.canva.com/design/DAFlhUbanOo/view"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 mt-3 px-4 py-3 rounded-lg bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold hover:shadow-neon-sm hover:brightness-110 transition-all duration-300"
+          <>
+            {/* Blurred Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 z-40 bg-[#030712]/68 backdrop-blur-sm md:hidden"
+            />
+            {/* Menu Panel */}
+            <motion.div
+              id="mobile-navigation"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.25 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Mobile navigation"
+              className="fixed left-3 right-3 top-[76px] z-[60] overflow-hidden rounded-2xl border border-white/10 bg-[#030712]/94 shadow-[0_22px_60px_rgba(0,0,0,0.62)] backdrop-blur-2xl md:hidden"
             >
-              <Terminal size={14} className="animate-pulse" /> Download Resume
-            </a>
+              <div className="border-b border-white/8 px-4 py-3">
+                <p className="font-mono text-[0.58rem] uppercase tracking-[0.2em] text-slate-500">
+                  Navigate
+                </p>
+                <p className="mt-1 font-display text-lg font-bold leading-none text-white">
+                  Portfolio Sections
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 p-3">
+                {NAV_LINKS.map((link, i) => {
+                  const Icon = link.icon;
+
+                  return (
+                    <motion.button
+                      key={link.href}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.035 }}
+                      onClick={() => scrollTo(link.href)}
+                      className={`group flex min-h-[66px] items-center gap-2.5 rounded-lg border px-3 text-left transition-all active:scale-[0.98] ${
+                        active === link.href
+                          ? "border-primary/45 bg-primary/16 text-white shadow-neon-sm"
+                          : "border-white/8 bg-white/[0.025] text-slate-300 hover:border-primary/25 hover:bg-white/[0.055] hover:text-white"
+                      }`}
+                    >
+                      <span
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-all ${
+                          active === link.href
+                            ? "border-primary/35 bg-primary/20 text-primary"
+                            : "border-white/8 bg-white/[0.035] text-slate-400 group-hover:text-accent"
+                        }`}
+                      >
+                        <Icon size={17} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[0.82rem] font-semibold leading-none">
+                          {link.label}
+                        </span>
+                        <span className="mt-1.5 block truncate font-mono text-[0.56rem] uppercase tracking-[0.14em] text-slate-500">
+                          {link.cue}
+                        </span>
+                      </span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-white/8 p-3">
+                <a
+                  href="https://www.canva.com/design/DAFlhUbanOo/view"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-accent text-sm font-semibold text-white transition-all duration-300 hover:brightness-110 hover:shadow-neon-sm active:scale-[0.98]"
+                >
+                  <Terminal size={15} /> Resume
+                </a>
+              </div>
           </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>

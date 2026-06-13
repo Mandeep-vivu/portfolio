@@ -10,7 +10,8 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import NeonBadge from "@/components/ui/NeonBadge";
 import GlowButton from "@/components/ui/GlowButton";
 
-import { PROJECTS } from "@/lib/data";
+import type { Project } from "@/lib/data";
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
 
 const BADGE_COLORS: Record<
   string,
@@ -50,7 +51,7 @@ function ProjectCard({
   project,
   index,
 }: {
-  project: (typeof PROJECTS)[0];
+  project: Project;
   index: number;
 }) {
   const { ref, inView } = useInView({
@@ -172,11 +173,12 @@ function ProjectCard({
 }
 
 export default function Projects() {
+  const { projects } = usePortfolio();
   const [showAll, setShowAll] = useState(false);
 
   const displayed = showAll
-    ? PROJECTS
-    : PROJECTS.slice(0, 4);
+    ? projects
+    : projects.slice(0, 4);
 
   return (
     <section
@@ -216,7 +218,7 @@ export default function Projects() {
           className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row"
         >
           <AnimatePresence>
-            {!showAll && PROJECTS.length > 4 && (
+            {!showAll && projects.length > 4 && (
               <motion.div
                 initial={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}

@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
 
 type NavLink = {
   label: string;
@@ -31,6 +32,7 @@ const NAV_LINKS: NavLink[] = [
 ];
 
 export default function Navbar() {
+  const { profile } = usePortfolio();
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -248,7 +250,7 @@ export default function Navbar() {
             {/* CTA + Mobile */}
             <div className="flex items-center gap-3">
               <a
-                href="https://www.canva.com/design/DAFlhUbanOo/view"
+                href={profile.resumeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30 text-primary text-sm font-semibold hover:bg-primary hover:text-white hover:shadow-neon-sm transition-all duration-300"
@@ -353,7 +355,7 @@ export default function Navbar() {
 
               <div className="border-t border-white/8 p-3">
                 <a
-                  href="https://www.canva.com/design/DAFlhUbanOo/view"
+                  href={profile.resumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-accent text-sm font-semibold text-white transition-all duration-300 hover:brightness-110 hover:shadow-neon-sm active:scale-[0.98]"

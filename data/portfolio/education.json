@@ -1,0 +1,29 @@
+[
+  {
+    "id": "me-cu",
+    "year": "2025 - Present",
+    "title": "M.E. in Artificial Intelligence & Machine Learning",
+    "org": "Chandigarh University, Punjab",
+    "description": "Pursuing post-graduate research in AI/ML, deep learning, neural networks, and intelligent systems engineering.",
+    "type": "education",
+    "side": "right"
+  },
+  {
+    "id": "btech",
+    "year": "2019 - 2023",
+    "title": "B.Tech in Computer Engineering",
+    "org": "The Technological Institute of Textile & Sciences, Bhiwani",
+    "description": "Graduated with 68.4%. Specialized in software development, databases, and systems engineering. Led multiple technical projects.",
+    "type": "education",
+    "side": "right"
+  },
+  {
+    "id": "hsse",
+    "year": "2017 - 2018",
+    "title": "Senior Secondary (Non-Medical + CS)",
+    "org": "Vaish Model Sr. Sec. School, Bhiwani",
+    "description": "Scored 77.4% in Class XII with Computer Science as a core subject.",
+    "type": "education",
+    "side": "left"
+  }
+]

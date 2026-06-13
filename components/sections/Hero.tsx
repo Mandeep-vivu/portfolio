@@ -8,7 +8,7 @@ import { Mail, Download, ArrowRight } from "lucide-react";
 import { FiGithub as Github, FiLinkedin as Linkedin } from "react-icons/fi";
 
 import GlowButton from "@/components/ui/GlowButton";
-import { PERSONAL } from "@/lib/data";
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
 
 const AIOrb = dynamic(() => import("@/components/three/AIOrb"), {
   ssr: false,
@@ -37,13 +37,13 @@ const item = {
   },
 };
 
-const SOCIALS = [
-  { icon: Github, href: PERSONAL.github, label: "GitHub" },
-  { icon: Linkedin, href: PERSONAL.linkedin, label: "LinkedIn" },
-  { icon: Mail, href: `mailto:${PERSONAL.email}`, label: "Email" },
-];
-
 export default function Hero({ isLoading = false }: { isLoading?: boolean }) {
+  const { profile, contact } = usePortfolio();
+  const socials = [
+    { icon: Github, href: contact.github, label: "GitHub" },
+    { icon: Linkedin, href: contact.linkedin, label: "LinkedIn" },
+    { icon: Mail, href: `mailto:${contact.email}`, label: "Email" },
+  ];
   const spotlightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -276,7 +276,7 @@ export default function Hero({ isLoading = false }: { isLoading?: boolean }) {
               <motion.div variants={item} className="mt-5 sm:mt-9">
                 <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
                   <GlowButton
-                    href={PERSONAL.resumeUrl}
+                    href={profile.resumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     variant="primary"
@@ -322,7 +322,7 @@ export default function Hero({ isLoading = false }: { isLoading?: boolean }) {
                     </span>
 
                     <div className="flex items-center gap-2.5 sm:gap-4">
-                      {SOCIALS.map(({ icon: Icon, href, label }) => (
+                      {socials.map(({ icon: Icon, href, label }) => (
                         <a
                           key={label}
                           href={href}

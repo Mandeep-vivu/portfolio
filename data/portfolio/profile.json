@@ -1,0 +1,22 @@
+{
+  "name": "Mandeep Singh",
+  "initials": "MS",
+  "tagline": "AI/ML Engineer & Full Stack Developer",
+  "roles": [
+    "AI/ML Engineer",
+    "Full Stack Developer",
+    "Cloud Architect",
+    "Data Scientist",
+    "Flutter Developer"
+  ],
+  "bio": "Pursuing M.E. in Artificial Intelligence & Machine Learning at Chandigarh University. I architect intelligent systems at the intersection of AI research and production engineering. From training neural networks to deploying cloud-native applications, I build things that matter.",
+  "location": "Bhiwani, Haryana, India",
+  "availableForWork": true,
+  "resumeUrl": "https://www.canva.com/design/DAFlhUbanOo/view",
+  "stats": [
+    { "label": "Projects Built", "value": 10, "suffix": "+" },
+    { "label": "Internships", "value": 2, "suffix": "" },
+    { "label": "Students Trained", "value": 50, "suffix": "+" },
+    { "label": "Certifications", "value": 5, "suffix": "+" }
+  ]
+}

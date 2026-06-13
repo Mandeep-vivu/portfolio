@@ -28,7 +28,7 @@ import {
   FiLinkedin as Linkedin,
 } from "react-icons/fi";
 
-import { PERSONAL } from "@/lib/data";
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
 
 type Status =
   | "idle"
@@ -85,29 +85,6 @@ const INITIAL_FORM: FormState = {
   subject: "",
   message: "",
 };
-
-const SOCIALS = [
-  {
-    icon: Github,
-    label: "GitHub",
-    value: "Mandeep-vivu",
-    href: PERSONAL.github,
-  },
-
-  {
-    icon: Linkedin,
-    label: "LinkedIn",
-    value: "vivansingh-mandeep",
-    href: PERSONAL.linkedin,
-  },
-
-  {
-    icon: Mail,
-    label: "Email",
-    value: PERSONAL.email,
-    href: `mailto:${PERSONAL.email}`,
-  },
-];
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -302,6 +279,27 @@ function FormField({
 }
 
 export default function Contact() {
+  const { profile, contact } = usePortfolio();
+  const socials = [
+    {
+      icon: Github,
+      label: "GitHub",
+      value: contact.github.replace(/^https?:\/\/(www\.)?github\.com\//, ""),
+      href: contact.github,
+    },
+    {
+      icon: Linkedin,
+      label: "LinkedIn",
+      value: contact.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, ""),
+      href: contact.linkedin,
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      value: contact.email,
+      href: `mailto:${contact.email}`,
+    },
+  ];
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.12,
@@ -345,7 +343,7 @@ export default function Contact() {
         setTimeout(resolve, 1200)
       );
 
-      window.location.href = `mailto:${PERSONAL.email}?subject=${encodeURIComponent(
+      window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent(
         form.subject
       )}&body=${encodeURIComponent(
         `Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`
@@ -360,7 +358,7 @@ export default function Contact() {
         3500
       );
     },
-    [form]
+    [contact.email, form]
   );
 
   return (
@@ -451,7 +449,7 @@ export default function Contact() {
 
               <p className="mt-1.5 text-[0.8rem] leading-5 text-slate-400">
                 Fastest response through
-                email.
+                  email.
               </p>
             </div>
 
@@ -460,21 +458,21 @@ export default function Contact() {
               <ContactCard
                 icon={<Mail size={16} />}
                 label="Email"
-                value={PERSONAL.email}
-                href={`mailto:${PERSONAL.email}`}
+                value={contact.email}
+                href={`mailto:${contact.email}`}
               />
 
               <ContactCard
                 icon={<Phone size={16} />}
                 label="Phone"
-                value={PERSONAL.phone}
+                value={contact.phone}
                 tone="accent"
               />
 
               <ContactCard
                 icon={<MapPin size={16} />}
                 label="Location"
-                value={PERSONAL.location}
+                value={profile.location}
                 tone="secondary"
               />
             </div>
@@ -490,7 +488,7 @@ export default function Contact() {
               </div>
 
               <div className="grid grid-cols-1 gap-2">
-                {SOCIALS.map((social) => (
+                {socials.map((social) => (
                   <SocialCard
                     key={social.label}
                     {...social}

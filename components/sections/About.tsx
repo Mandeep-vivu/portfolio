@@ -5,7 +5,7 @@ import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
 
 import GlassCard from "@/components/ui/GlassCard";
-import { STATS } from "@/lib/data";
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
 
 import {
   Brain,
@@ -103,6 +103,7 @@ const mandeep = {
 };`;
 
 export default function About() {
+  const { profile } = usePortfolio();
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -281,7 +282,7 @@ export default function About() {
           <div className="flex h-full flex-col gap-2.5 lg:gap-3">
             {/* Stats */}
             <div className="grid auto-rows-fr grid-cols-2 gap-2.5 sm:gap-3">
-              {STATS.map((stat, i) => (
+              {profile.stats.map((stat, i) => (
                 <motion.div
                   key={stat.label}
                   initial={{ opacity: 0, y: 20 }}

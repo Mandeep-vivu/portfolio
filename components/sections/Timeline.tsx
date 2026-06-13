@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 
 import SectionHeading from "@/components/ui/SectionHeading";
-import { TIMELINE } from "@/lib/data";
+import type { TimelineEntry } from "@/lib/data";
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
 
 const TYPE_STYLES = {
   education: {
@@ -47,7 +48,7 @@ function TimelineEntry({
   entry,
   index,
 }: {
-  entry: (typeof TIMELINE)[number];
+  entry: TimelineEntry;
   index: number;
 }) {
   const { ref, inView } = useInView({
@@ -119,6 +120,11 @@ function TimelineEntry({
 }
 
 export default function Timeline() {
+  const { education, experience } = usePortfolio();
+  const timeline = [...education, ...experience].sort((a, b) => {
+    const order = ["me-cu", "flutter-intern", "ds-intern", "vp-tcs", "btech", "hsse"];
+    return order.indexOf(a.id) - order.indexOf(b.id);
+  });
   return (
     <section
       id="journey"
@@ -142,7 +148,7 @@ export default function Timeline() {
             aria-hidden="true"
           />
 
-          {TIMELINE.map((entry, index) => (
+          {timeline.map((entry, index) => (
             <TimelineEntry
               key={entry.id}
               entry={entry}

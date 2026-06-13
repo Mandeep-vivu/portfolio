@@ -6,7 +6,8 @@ import { useInView } from "react-intersection-observer";
 import { Brain, CloudCog, Wrench } from "lucide-react";
 import SectionHeading from "@/components/ui/SectionHeading";
 import GlassCard from "@/components/ui/GlassCard";
-import { SKILLS, type Skill } from "@/lib/data";
+import type { Skill } from "@/lib/data";
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import {
   SiDocker,
   SiFastapi,
@@ -111,8 +112,9 @@ function SkillCard({ skill, index }: { skill: Skill; index: number }) {
 }
 
 export default function Skills() {
+  const { skills } = usePortfolio();
   const [activeTab, setActiveTab] = useState<Skill["category"]>("ai");
-  const filtered = SKILLS.filter((skill) => skill.category === activeTab);
+  const filtered = skills.filter((skill) => skill.category === activeTab);
 
   return (
     <section id="skills" className="md:min-h-[calc(100dvh-64px)] md:flex md:flex-col md:justify-center section-padding relative overflow-hidden">

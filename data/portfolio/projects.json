@@ -1,0 +1,68 @@
+[
+  {
+    "id": "covid-ml",
+    "title": "Covid-19 ML Predictor",
+    "description": "ML model predicting COVID-19 case trends using regression and time-series analysis.",
+    "longDesc": "Built a machine learning pipeline using Python, Scikit-learn, and Pandas to analyze and predict COVID-19 case trajectories. Implemented data preprocessing, feature engineering, and multiple regression models with cross-validation.",
+    "tech": ["Python", "Scikit-learn", "Pandas", "NumPy", "Matplotlib"],
+    "github": "https://github.com/Mandeep-vivu",
+    "featured": true,
+    "gradient": "from-violet-600/20 to-cyan-600/20",
+    "icon": "ML"
+  },
+  {
+    "id": "celestial-db",
+    "title": "Celestial Bodies Database",
+    "description": "Relational database system for astronomical data using PostgreSQL and Bash scripting.",
+    "longDesc": "Designed a full PostgreSQL database schema for celestial bodies including galaxies, stars, planets, and moons. Used Bash scripting for data ingestion automation, complex SQL queries, and reporting.",
+    "tech": ["PostgreSQL", "Bash", "SQL", "Linux"],
+    "github": "https://github.com/Mandeep-vivu/PROJECT-RDBMS",
+    "featured": true,
+    "gradient": "from-blue-600/20 to-indigo-600/20",
+    "icon": "DB"
+  },
+  {
+    "id": "technozarre-app",
+    "title": "Technozarre App",
+    "description": "Lead-architected Flutter mobile app for college fest event registrations.",
+    "longDesc": "Served as Lead Architect for a Flutter mobile application enabling students to register for college technical fest events. Implemented real-time updates via Socket.IO, integrated REST APIs, and delivered a polished cross-platform UX.",
+    "tech": ["Flutter", "Dart", "Socket.IO", "REST API"],
+    "github": "https://github.com/Mandeep-vivu/technozarreap",
+    "featured": true,
+    "gradient": "from-emerald-600/20 to-teal-600/20",
+    "icon": "APP"
+  },
+  {
+    "id": "technozarre-web",
+    "title": "Technozarre Website",
+    "description": "Official college technical fest website with event listings and a registration system.",
+    "longDesc": "Designed and developed the official website for Technozarre, the annual technical fest. Built with modern HTML, CSS, and JavaScript, featuring event details, registration forms, schedule management, and responsive design.",
+    "tech": ["HTML", "CSS", "JavaScript", "Responsive Design"],
+    "github": "https://github.com/Mandeep-vivu/technozarre_webp",
+    "featured": true,
+    "gradient": "from-orange-600/20 to-red-600/20",
+    "icon": "WEB"
+  },
+  {
+    "id": "flutter-chat",
+    "title": "Flutter Chat App",
+    "description": "Real-time cross-platform chat application with Socket.IO and live messaging.",
+    "longDesc": "Built a fully functional real-time chat application using Flutter and Dart. Integrated Socket.IO for bi-directional event-based communication, REST API for user authentication, and a clean modern UI.",
+    "tech": ["Flutter", "Dart", "Socket.IO", "API"],
+    "github": "https://github.com/Mandeep-vivu",
+    "featured": false,
+    "gradient": "from-pink-600/20 to-rose-600/20",
+    "icon": "CHAT"
+  },
+  {
+    "id": "fitness-ai",
+    "title": "AI Fitness Trainer",
+    "description": "Computer vision-based AI fitness coach with real-time pose detection and feedback.",
+    "longDesc": "Developed an AI fitness trainer using Python, OpenCV, and MediaPipe for real-time pose estimation and exercise tracking. Features voice feedback, rep counting, and a Streamlit dashboard.",
+    "tech": ["Python", "OpenCV", "MediaPipe", "Streamlit", "Computer Vision"],
+    "github": "https://github.com/Mandeep-vivu",
+    "featured": false,
+    "gradient": "from-yellow-600/20 to-amber-600/20",
+    "icon": "CV"
+  }
+]

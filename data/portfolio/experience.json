@@ -1,0 +1,29 @@
+[
+  {
+    "id": "flutter-intern",
+    "year": "2023",
+    "title": "Flutter Developer Intern",
+    "org": "Henceforth Solutions, Mohali",
+    "description": "Worked on production Flutter applications, resolved UI bugs, implemented new features, and improved app performance.",
+    "type": "experience",
+    "side": "left"
+  },
+  {
+    "id": "ds-intern",
+    "year": "Jun 2023",
+    "title": "Data Science Trainee",
+    "org": "MedTourEasy",
+    "description": "Completed an intensive 4-week data science training program. Delivered a capstone project: Analysis of Fitness Data.",
+    "type": "experience",
+    "side": "right"
+  },
+  {
+    "id": "vp-tcs",
+    "year": "Jun 2022 - Apr 2023",
+    "title": "Vice President",
+    "org": "TCS Society (Computer Science Society)",
+    "description": "Led and organized coding competitions including CodeWar. Trained 50+ students in programming fundamentals. Managed technical events.",
+    "type": "leadership",
+    "side": "left"
+  }
+]

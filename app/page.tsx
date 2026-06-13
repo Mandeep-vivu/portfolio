@@ -16,6 +16,9 @@ import Projects from "@/components/sections/Projects";
 import Timeline from "@/components/sections/Timeline";
 import Achievements from "@/components/sections/Achievements";
 import Contact from "@/components/sections/Contact";
+import ChatErrorBoundary from "@/components/ai/ChatErrorBoundary";
+const AIChat = dynamic(() => import("@/components/ai/AIChat"), { ssr: false });
+import { PortfolioProvider } from "@/components/providers/PortfolioProvider";
 
 // Particles (client-only, SSR=false)
 const ParticleField = dynamic(() => import("@/components/three/ParticleField"), { ssr: false });
@@ -24,7 +27,7 @@ export default function Home() {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <>
+    <PortfolioProvider>
       {!loaded && <LoadingScreen onComplete={() => setLoaded(true)} />}
 
       <div className="relative min-h-screen" style={{ position: "relative", zIndex: 1 }}>
@@ -52,7 +55,10 @@ export default function Home() {
           </main>
 
           <Footer />
+          <ChatErrorBoundary>
+            <AIChat />
+          </ChatErrorBoundary>
       </div>
-    </>
+    </PortfolioProvider>
   );
 }

@@ -1,0 +1,60 @@
+[
+  {
+    "id": "ibm-ds",
+    "title": "IBM Data Science Specialization",
+    "description": "Completed the IBM Data Science Professional Certificate on Coursera, covering Python, SQL, ML, data visualization, and capstone projects.",
+    "icon": "CERT",
+    "type": "certification",
+    "link": "https://coursera.org/share/58179a230f4557af4ef7602850eb0df9"
+  },
+  {
+    "id": "infosys-python",
+    "title": "Python Fundamentals - Infosys Springboard",
+    "description": "44-hour Python programming course by Infosys Springboard covering core language, OOP, and data handling.",
+    "icon": "PY",
+    "type": "certification",
+    "link": "https://infyspringboard.onwingspan.com/public-assets/infosysheadstart/cert/lex_auth_0125409616243425281061_shared/1-e3e0c8f2-029f-4326-b8be-7c918b334cfd.pdf"
+  },
+  {
+    "id": "technical-head",
+    "title": "Technical Head - Technozarre Fest",
+    "description": "Appointed Technical Head of the official 2-day college Technical Fest. Led event planning, coordination, and technical execution.",
+    "icon": "LEAD",
+    "type": "leadership"
+  },
+  {
+    "id": "vp",
+    "title": "Vice President - TCS Computer Society",
+    "description": "Held the VP position in the college Computer Science Society. Organized coding events and mentored 50+ students.",
+    "icon": "VP",
+    "type": "leadership"
+  },
+  {
+    "id": "nfs-winner",
+    "title": "1st Place - NFS Gaming Championship",
+    "description": "Won the NFS Most Wanted competitive gaming event among 50+ participants at the college gaming tournament.",
+    "icon": "1ST",
+    "type": "award"
+  },
+  {
+    "id": "quiz-2nd",
+    "title": "2nd Place - College Quiz Competition",
+    "description": "Achieved 2nd place in the college-level general and technical quiz competition.",
+    "icon": "2ND",
+    "type": "award"
+  },
+  {
+    "id": "htet-supervisor",
+    "title": "Zone Supervisor - HTET Exam",
+    "description": "Supervised 120+ exam agents as Zone Supervisor for the Haryana Teacher Eligibility Test (HTET).",
+    "icon": "OPS",
+    "type": "leadership"
+  },
+  {
+    "id": "campus-ambassador",
+    "title": "Campus Ambassador",
+    "description": "Served as Campus Ambassador managing and mentoring a cohort of 48+ students.",
+    "icon": "CA",
+    "type": "leadership"
+  }
+]

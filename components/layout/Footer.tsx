@@ -1,15 +1,15 @@
 "use client";
 import { Mail, Heart, ArrowUp } from "lucide-react";
 import { FiGithub as Github, FiLinkedin as Linkedin } from "react-icons/fi";
-import { PERSONAL } from "@/lib/data";
-
-const SOCIALS = [
-  { icon: Github, href: PERSONAL.github, label: "GitHub" },
-  { icon: Linkedin, href: PERSONAL.linkedin, label: "LinkedIn" },
-  { icon: Mail, href: `mailto:${PERSONAL.email}`, label: "Email" },
-];
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
 
 export default function Footer() {
+  const { profile, contact } = usePortfolio();
+  const socials = [
+    { icon: Github, href: contact.github, label: "GitHub" },
+    { icon: Linkedin, href: contact.linkedin, label: "LinkedIn" },
+    { icon: Mail, href: `mailto:${contact.email}`, label: "Email" },
+  ];
   return (
     <footer className="relative border-t border-white/5 bg-[#030712]/80 backdrop-blur-xl">
       {/* Top glow line */}
@@ -24,7 +24,7 @@ export default function Footer() {
                 <span className="font-display font-black text-white text-xs">MS</span>
               </div>
               <span className="font-display font-bold text-white text-lg">
-                Mandeep Singh
+                {profile.name}
               </span>
             </div>
             <p className="text-slate-500 text-sm font-mono">
@@ -34,7 +34,7 @@ export default function Footer() {
 
           {/* Socials */}
           <div className="flex items-center gap-3">
-            {SOCIALS.map(({ icon: Icon, href, label }) => (
+            {socials.map(({ icon: Icon, href, label }) => (
               <a
                 key={label}
                 href={href}

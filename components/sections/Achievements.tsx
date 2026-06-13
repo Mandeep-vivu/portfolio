@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 
 import SectionHeading from "@/components/ui/SectionHeading";
-import { ACHIEVEMENTS } from "@/lib/data";
+import type { Achievement } from "@/lib/data";
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
 
 const TYPE_STYLES = {
   certification: {
@@ -50,7 +51,7 @@ function AchievementCard({
   achievement,
   index,
 }: {
-  achievement: (typeof ACHIEVEMENTS)[0];
+  achievement: Achievement;
   index: number;
 }) {
   const { ref, inView } = useInView({
@@ -135,6 +136,7 @@ function AchievementCard({
 }
 
 export default function Achievements() {
+  const { certifications } = usePortfolio();
   const { ref: statsRef, inView: statsInView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -232,7 +234,7 @@ export default function Achievements() {
 
         {/* cards */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {ACHIEVEMENTS.map((ach, i) => (
+          {certifications.map((ach, i) => (
             <AchievementCard
               key={ach.id}
               achievement={ach}

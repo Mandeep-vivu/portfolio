@@ -1,7 +1,7 @@
 import { ConversationMemory, ChatMessage } from "./schemas";
 
 export function updateMemoryLocally(
-  currentMemory: ConversationMemory | undefined,
+  currentMemory: ConversationMemory | null | undefined,
   messages: ChatMessage[],
   intent: string,
   entities: string[]
@@ -40,7 +40,7 @@ export function updateMemoryLocally(
   return mem;
 }
 
-export function resolveLocalReference(query: string, memory?: ConversationMemory): string {
+export function resolveLocalReference(query: string, memory?: ConversationMemory | null): string {
   if (!memory) return query;
   
   const lowerQuery = query.toLowerCase();

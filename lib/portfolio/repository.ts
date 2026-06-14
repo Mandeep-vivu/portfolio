@@ -80,3 +80,31 @@ export function getContentStorageMode() {
   if (process.env.NODE_ENV === "production") return "readonly";
   return "memory";
 }
+
+export async function getProfile() {
+  return (await getPortfolio()).profile;
+}
+
+export async function getProjects() {
+  return (await getPortfolio()).projects;
+}
+
+export async function getSkills() {
+  return (await getPortfolio()).skills;
+}
+
+export async function getEducation() {
+  return (await getPortfolio()).education;
+}
+
+export async function getExperience() {
+  return (await getPortfolio()).experience;
+}
+
+export async function getCertifications() {
+  return (await getPortfolio()).certifications;
+}
+
+export async function getContact() {
+  return (await getPortfolio()).contact;
+}

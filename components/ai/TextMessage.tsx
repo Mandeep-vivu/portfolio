@@ -1,3 +1,8 @@
-export default function TextMessage({ content }: { content: string }) {
-  return <div className="whitespace-pre-wrap">{content}</div>;
+import ResponsePresentation from "./ResponsePresentation";
+
+export default function TextMessage({ content, isUser }: { content: string; isUser?: boolean }) {
+  if (isUser) {
+    return <div className="whitespace-pre-wrap">{content}</div>;
+  }
+  return <ResponsePresentation content={content} />;
 }

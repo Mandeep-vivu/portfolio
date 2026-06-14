@@ -107,8 +107,10 @@ function SkillBar({
 // Structured result renderers
 // ---------------------------------------------------------------------------
 
-function StructuredResult({ result }: { result: AgentResult }) {
+function StructuredResult({ result, messageId }: { result: AgentResult; messageId: string }) {
   if (result.type === "projects") {
+    if (result.projects.length === 0) return null;
+
     return (
       <div className="mt-3 grid gap-2">
         {result.projects.map((project) => (
@@ -116,12 +118,12 @@ function StructuredResult({ result }: { result: AgentResult }) {
             key={project.id}
             className="rounded-xl border border-white/10 bg-black/20 p-3"
           >
-            <h4 className="text-sm font-bold text-white">{project.title}</h4>
+            <h4 className="text-sm font-bold text-white">{project.title || project.name}</h4>
             <p className="mt-1 text-xs leading-5 text-slate-400">
               {project.description}
             </p>
             <div className="mt-2 flex flex-wrap gap-1">
-              {project.tech.map((tech) => (
+              {(project.tech || project.topics || []).map((tech: string) => (
                 <span
                   key={tech}
                   className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[0.62rem] text-indigo-200"
@@ -131,9 +133,9 @@ function StructuredResult({ result }: { result: AgentResult }) {
               ))}
             </div>
             <div className="mt-3 flex gap-2">
-              {safeHref(project.github) && (
+              {safeHref(project.githubUrl || project.github) && (
                 <a
-                  href={project.github}
+                  href={project.githubUrl || project.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs text-slate-200 hover:border-primary/40"
@@ -141,9 +143,9 @@ function StructuredResult({ result }: { result: AgentResult }) {
                   <Github size={13} /> GitHub
                 </a>
               )}
-              {project.demo && safeHref(project.demo) && (
+              {safeHref(project.demoUrl || project.demo) && (
                 <a
-                  href={project.demo}
+                  href={project.demoUrl || project.demo}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-lg bg-primary/20 px-2.5 py-1.5 text-xs text-indigo-100"
@@ -222,22 +224,7 @@ function StructuredResult({ result }: { result: AgentResult }) {
 
   if (result.type === "scheduling") {
     return result.configured && safeHref(result.calendlyUrl) ? (
-      <div className="mt-3 overflow-hidden rounded-xl border border-white/10 bg-white">
-        <iframe
-          title="Schedule with Mandeep"
-          src={result.calendlyUrl}
-          className="h-[360px] w-full"
-          loading="lazy"
-        />
-        <a
-          href={result.calendlyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 bg-[#0b1020] p-3 text-xs font-semibold text-cyan-200"
-        >
-          <CalendarDays size={14} /> Open Calendly in a new tab
-        </a>
-      </div>
+      <SchedulingCard url={result.calendlyUrl} messageId={messageId} />
     ) : null;
   }
 
@@ -466,11 +453,12 @@ export default function ChatMessage({ message }: { message: UIMessage }) {
           <ErrorCard message={message.content || "I couldn't generate a response right now. Please try again."} />
         ) : (
           <div className="flex flex-col gap-2">
-            {message.content && <TextMessage content={message.content} />}
+            {message.content && <TextMessage content={message.content} isUser={isUser} />}
             {message.blocks && message.blocks.map((block, i) => {
               switch (block.type) {
-                case "text": return <TextMessage key={i} content={block.content} />;
+                case "text": return <TextMessage key={i} content={block.content} isUser={isUser} />;
                 case "project_card": 
+                  if (!(block as any).projects || (block as any).projects.length === 0) return null;
                   return (
                     <div key={i} className="mt-2 grid gap-2">
                       {(block as any).projects.map((p: any) => (
@@ -480,14 +468,14 @@ export default function ChatMessage({ message }: { message: UIMessage }) {
                   );
                 case "resume_link": return <ResumeCard key={i} url={(block as any).url} title={(block as any).title} />;
                 case "contact": return <ContactCard key={i} contact={block as any} />;
-                case "schedule": return <SchedulingCard key={i} url={(block as any).url} />;
+                case "schedule": return <SchedulingCard key={i} url={(block as any).url} messageId={message.id} />;
                 case "error": return <ErrorCard key={i} message={block.content} />;
                 default: return <ErrorCard key={i} message={`Unknown block type: ${(block as any).type}`} />;
               }
             })}
           </div>
         )}
-        {message.result && <StructuredResult result={message.result} />}
+        {message.result && <StructuredResult result={message.result} messageId={message.id} />}
       </div>
     </div>
   );

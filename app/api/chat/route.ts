@@ -1,7 +1,7 @@
 import { ZodError } from "zod";
 import { generateObject } from "ai";
-import { getAIModel, GROUNDED_ANSWER_PROMPT } from "@/lib/ai/gemini";
-import { retrieveRAGContext } from "@/lib/ai/rag";
+import { getAIModel, getGroqModel, GROUNDED_ANSWER_PROMPT } from "@/lib/ai/gemini";
+import { retrieveHybridContext } from "@/lib/ai/hybrid";
 import { chatRequestSchema, singleTurnResponseSchema } from "@/lib/ai/schemas";
 import { getPortfolio } from "@/lib/portfolio/repository";
 import { rateLimit, requestIdentity } from "@/lib/security/rate-limit";
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
                portfolioUrl: portfolio.contact.portfolioUrl || process.env.NEXT_PUBLIC_SITE_URL || "",
              });
           }
-          else if (/schedule meeting|book interview|arrange call|calendly/.test(lastMessage)) {
+          else if (/schedule|book interview|book meeting|book call|arrange call|calendly/.test(lastMessage)) {
              intentStr = "SCHEDULING_REQUEST";
              metrics.usedTool = true;
              const calendlyUrl = process.env.NEXT_PUBLIC_CALENDLY_URL ?? "";
@@ -107,22 +107,27 @@ export async function POST(request: Request) {
           else if (/what are his skills|what is his education|what certifications does he have|tell me about his experience/.test(lastMessage)) {
              intentStr = "FAQ_REQUEST";
              metrics.usedRAG = true;
-             const ragRes = await retrieveRAGContext(lastMessage, 4);
-             if (ragRes.chunks.length > 0) {
+             const portfolio = await getPortfolio();
+             const hybridCtx = await retrieveHybridContext(lastMessage, portfolio, 4);
+             if (hybridCtx.matchedProjects.length > 0 || hybridCtx.semanticMatches.length > 0 || hybridCtx.matchedSkills.length > 0 || hybridCtx.matchedExperience.length > 0) {
                let text = "Based on Mandeep's portfolio:\n\n";
                
-               const projects = ragRes.chunks.filter((c: any) => c.type === "project");
-               const others = ragRes.chunks.filter((c: any) => c.type !== "project");
-               
-               if (others.length > 0) {
-                 text += others.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
-                 blocks.push({ type: "text", content: text });
+               if (hybridCtx.semanticMatches.length > 0) {
+                 text += hybridCtx.semanticMatches.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
                }
-               if (projects.length > 0) {
-                 const projData = projects.map((p: any) => ({
-                    id: p.id, title: p.title, description: p.content, tech: p.metadata?.tech || [], github: p.metadata?.github, demo: p.metadata?.demo
-                 }));
-                 blocks.push({ type: "project_card", projects: projData });
+               if (hybridCtx.matchedSkills.length > 0) {
+                 text += "\n\nSkills: " + hybridCtx.matchedSkills.map((s: any) => s.name).join(", ");
+               }
+               if (hybridCtx.matchedExperience.length > 0) {
+                 text += "\n\nExperience:\n" + hybridCtx.matchedExperience.map((e: any) => `- **${e.title}** at ${e.org}`).join("\n");
+               }
+               
+               if (text !== "Based on Mandeep's portfolio:\n\n") {
+                 blocks.push({ type: "text", content: text.trim() });
+               }
+               
+               if (hybridCtx.matchedProjects.length > 0) {
+                 blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
                }
              } else {
                blocks.push({ type: "text", content: "I couldn't find specific information about that in the portfolio." });
@@ -138,13 +143,14 @@ export async function POST(request: Request) {
             // Resolve local references first
             const resolvedQuery = resolveLocalReference(lastMessage, currentMemory);
             
-            // RAG Retrieval
+            // Hybrid Retrieval
             metrics.usedRAG = true;
-            const ragRes = await retrieveRAGContext(resolvedQuery, 5);
+            const portfolio = await getPortfolio();
+            const hybridCtx = await retrieveHybridContext(resolvedQuery, portfolio, 5);
             
             let systemPrompt = `${GROUNDED_ANSWER_PROMPT}\n\nCURRENT CONVERSATION MEMORY:\n${
               currentMemory ? JSON.stringify(currentMemory, null, 2) : "No memory yet."
-            }\n\nRETRIEVED PORTFOLIO CONTEXT:\n${JSON.stringify(ragRes.chunks, null, 2)}`;
+            }\n\nRETRIEVED PORTFOLIO CONTEXT:\n${JSON.stringify(hybridCtx, null, 2)}`;
             
             const aiCallMessages = [
                ...currentMessages.slice(0, -1),
@@ -164,22 +170,71 @@ export async function POST(request: Request) {
               // 429 QUOTA FALLBACK
               const isQuotaError = err?.message?.includes("quota") || err?.message?.includes("429") || err?.message?.includes("RESOURCE_EXHAUSTED");
               
-              if (isQuotaError && ragRes.chunks.length > 0) {
-                 let fallbackText = "Based on Mandeep's portfolio, here is the relevant information:\n\n";
-                 
-                 const projects = ragRes.chunks.filter((c: any) => c.type === "project");
-                 const others = ragRes.chunks.filter((c: any) => c.type !== "project");
-                 
-                 if (others.length > 0) {
-                   fallbackText += others.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
-                   blocks.push({ type: "text", content: fallbackText });
-                 }
-                 if (projects.length > 0) {
-                   const projData = projects.map((p: any) => ({
-                      id: p.id, title: p.title, description: p.content, tech: p.metadata?.tech || [], github: p.metadata?.github, demo: p.metadata?.demo
-                   }));
-                   blocks.push({ type: "project_card", projects: projData });
-                 }
+              if (isQuotaError) {
+                const groqModel = getGroqModel();
+                if (groqModel) {
+                  console.log("Gemini Quota Exceeded. Falling back to Groq LLaMA 3.3...");
+                  try {
+                    aiResult = await generateObject({
+                      model: groqModel,
+                      system: systemPrompt,
+                      messages: aiCallMessages as any[],
+                      schema: singleTurnResponseSchema,
+                      mode: 'json',
+                    });
+                  } catch (groqErr: any) {
+                    console.error("Groq Fallback Error:", groqErr);
+                    // Fallback to text if Groq also fails
+                    if (hybridCtx.matchedProjects.length > 0 || hybridCtx.semanticMatches.length > 0 || hybridCtx.matchedSkills.length > 0 || hybridCtx.matchedExperience.length > 0) {
+                       let fallbackText = "Based on Mandeep's portfolio, here is the relevant information:\n\n";
+                       
+                       if (hybridCtx.semanticMatches.length > 0) {
+                         fallbackText += hybridCtx.semanticMatches.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
+                       }
+                       if (hybridCtx.matchedSkills.length > 0) {
+                         fallbackText += "\n\nSkills: " + hybridCtx.matchedSkills.map((s: any) => s.name).join(", ");
+                       }
+                       if (hybridCtx.matchedExperience.length > 0) {
+                         fallbackText += "\n\nExperience:\n" + hybridCtx.matchedExperience.map((e: any) => `- **${e.title}** at ${e.org}`).join("\n");
+                       }
+                       
+                       if (fallbackText !== "Based on Mandeep's portfolio, here is the relevant information:\n\n") {
+                         blocks.push({ type: "text", content: fallbackText.trim() });
+                       }
+                       
+                       if (hybridCtx.matchedProjects.length > 0) {
+                         blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
+                       }
+                    } else {
+                       blocks.push({ type: "error", content: "The AI assistant is temporarily busy. Please try again in a few minutes." });
+                    }
+                  }
+                } else {
+                  // Fallback to text if Groq is not configured
+                  if (hybridCtx.matchedProjects.length > 0 || hybridCtx.semanticMatches.length > 0 || hybridCtx.matchedSkills.length > 0 || hybridCtx.matchedExperience.length > 0) {
+                     let fallbackText = "Based on Mandeep's portfolio, here is the relevant information:\n\n";
+                     
+                     if (hybridCtx.semanticMatches.length > 0) {
+                       fallbackText += hybridCtx.semanticMatches.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
+                     }
+                     if (hybridCtx.matchedSkills.length > 0) {
+                       fallbackText += "\n\nSkills: " + hybridCtx.matchedSkills.map((s: any) => s.name).join(", ");
+                     }
+                     if (hybridCtx.matchedExperience.length > 0) {
+                       fallbackText += "\n\nExperience:\n" + hybridCtx.matchedExperience.map((e: any) => `- **${e.title}** at ${e.org}`).join("\n");
+                     }
+                     
+                     if (fallbackText !== "Based on Mandeep's portfolio, here is the relevant information:\n\n") {
+                       blocks.push({ type: "text", content: fallbackText.trim() });
+                     }
+                     
+                     if (hybridCtx.matchedProjects.length > 0) {
+                       blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
+                     }
+                  } else {
+                     blocks.push({ type: "error", content: "The AI assistant is temporarily busy. Please try again in a few minutes." });
+                  }
+                }
               } else {
                  blocks.push({ type: "error", content: "The AI assistant is temporarily busy. Please try again in a few minutes." });
               }
@@ -198,14 +253,10 @@ export async function POST(request: Request) {
                
                // Render project cards if projects were retrieved and it's a project query
                if (intentStr.includes("PROJECT") || obj.activeTopic === "Projects") {
-                  const projects = ragRes.chunks.filter((c: any) => c.type === "project");
-                  if (projects.length > 0) {
-                    const projData = projects.map((p: any) => ({
-                      id: p.id, title: p.title, description: p.content, tech: p.metadata?.tech || [], github: p.metadata?.github, demo: p.metadata?.demo
-                    }));
+                  if (hybridCtx.matchedProjects.length > 0) {
                     // Avoid duplicating project cards
                     if (!blocks.some(b => b.type === "project_card")) {
-                      blocks.push({ type: "project_card", projects: projData });
+                      blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
                     }
                   }
                }

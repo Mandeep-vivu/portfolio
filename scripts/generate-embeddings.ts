@@ -5,7 +5,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import profile from "../data/portfolio/profile.json" with { type: "json" };
-import projects from "../data/portfolio/projects.json" with { type: "json" };
+import projects from "../data/projects.json" with { type: "json" };
 import skills from "../data/portfolio/skills.json" with { type: "json" };
 import education from "../data/portfolio/education.json" with { type: "json" };
 import experience from "../data/portfolio/experience.json" with { type: "json" };
@@ -51,12 +51,21 @@ async function generateEmbeddings() {
   });
 
   // 2. Projects
-  for (const project of projects) {
+  for (const project of projects as any[]) {
     chunks.push({
       id: `project-${project.id}`,
       type: "project",
-      title: project.title,
-      content: `Project: ${project.title}\nDescription: ${project.description}\nDetails: ${project.longDesc}\nTechnology Stack: ${project.tech.join(", ")}`,
+      title: project.title || project.name,
+      content: `Project: ${project.title || project.name}
+Description: ${project.description || ""}
+Details: ${project.longDesc || ""}
+Category: ${project.category || ""}
+Difficulty: ${project.difficulty || ""}
+Recruiter Summary: ${project.recruiterSummary || ""}
+Problem Solved: ${project.problemSolved || ""}
+Complexity Score: ${project.complexityScore || 50}/100
+Technology: ${(project.tech || project.topics || []).join(", ")}
+Skills Demonstrated: ${(project.skillsDemonstrated || []).join(", ")}`,
       metadata: { source: "projects.json", projectId: project.id, original: project },
     });
   }

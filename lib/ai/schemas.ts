@@ -45,9 +45,14 @@ export const blockSchema = z.discriminatedUnion("type", [
     type: z.literal("project_card"),
     projects: z.array(z.object({
       id: z.string(),
-      title: z.string(),
-      description: z.string(),
-      tech: z.array(z.string()),
+      name: z.string().optional(),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      tech: z.array(z.string()).optional(),
+      topics: z.array(z.string()).optional(),
+      readmeSummary: z.string().optional(),
+      githubUrl: z.string().optional(),
+      demoUrl: z.string().optional(),
       github: z.string().optional(),
       demo: z.string().optional(),
     })),
@@ -86,9 +91,14 @@ export const finalResponseSchema = z.object({
 
 export const projectResultSchema = projectSchema.pick({
   id: true,
+  name: true,
   title: true,
   description: true,
   tech: true,
+  topics: true,
+  readmeSummary: true,
+  githubUrl: true,
+  demoUrl: true,
   github: true,
   demo: true,
 });

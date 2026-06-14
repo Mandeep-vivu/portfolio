@@ -333,9 +333,30 @@ export function buildKnowledgeDocuments(
     ...portfolio.projects.map((project) => ({
       id: project.id,
       category: "project",
-      title: project.title,
-      content: `${project.description}\n${project.longDesc}\nTechnology: ${project.tech.join(", ")}`,
-      searchableTerms: `project built created developed application ${project.tech.map((t) => t.toLowerCase()).join(" ")}`,
+      title: project.title || project.name,
+      content: [
+        `Title: ${project.title || project.name}`,
+        `Description: ${project.description}`,
+        `Technology: ${(project.tech || project.topics || []).join(", ")}`,
+        project.recruiterSummary ? `Recruiter Summary: ${project.recruiterSummary}` : "",
+        project.problemSolved ? `Problem Solved: ${project.problemSolved}` : "",
+        project.skillsDemonstrated && project.skillsDemonstrated.length > 0 ? `Skills Demonstrated: ${project.skillsDemonstrated.join(", ")}` : "",
+        project.keyFeatures && project.keyFeatures.length > 0 ? `Key Features: ${project.keyFeatures.join(", ")}` : "",
+        project.category ? `Category: ${project.category}` : "",
+        project.difficulty ? `Difficulty: ${project.difficulty}` : "",
+        project.industryUseCase ? `Industry: ${project.industryUseCase}` : "",
+        project.complexityScore ? `Complexity: ${project.complexityScore}/100` : "",
+        project.resumeWorthiness ? `Resume Worthiness: ${project.resumeWorthiness}/100` : "",
+      ].filter(Boolean).join("\n"),
+      searchableTerms: [
+        "project", "built", "created", "developed",
+        project.category || "",
+        project.difficulty || "",
+        project.industryUseCase || "",
+        project.projectType || "",
+        ...(project.tech || project.topics || []),
+        ...(project.skillsDemonstrated || []),
+      ].filter(Boolean).map((t) => t.toLowerCase()).join(" "),
     })),
     ...portfolio.skills.map((skill) => ({
       id: `skill-${skill.name.toLowerCase().replace(/\W+/g, "-")}`,
@@ -477,9 +498,9 @@ export function searchProjects(
   const documents = portfolio.projects.map((project) => ({
     id: project.id,
     category: "project",
-    title: project.title,
-    content: `${project.description} ${project.longDesc} ${project.tech.join(" ")}`,
-    searchableTerms: `project built created developed ${project.tech.map((t) => t.toLowerCase()).join(" ")}`,
+    title: project.title || project.name,
+    content: `${project.description} ${project.longDesc || ""} ${(project.tech || project.topics || []).join(" ")}`,
+    searchableTerms: `project built created developed ${(project.tech || project.topics || []).map((t) => t.toLowerCase()).join(" ")}`,
   }));
   const ranked = retrieveDocuments(query, documents, limit);
   return ranked

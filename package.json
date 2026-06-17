@@ -10,10 +10,12 @@
     "lint": "eslint",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "generate-embeddings": "tsx --env-file=.env.local scripts/generate-embeddings.ts"
+    "generate-embeddings": "tsx --env-file=.env.local scripts/generate-embeddings.ts",
+    "sync-github": "tsx --env-file=.env.local scripts/sync-github.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.82",
+    "@ai-sdk/groq": "^3.0.41",
     "@ai-sdk/openai": "^3.0.71",
     "@emailjs/browser": "^4.4.1",
     "@gsap/react": "^2.1.2",

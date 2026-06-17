@@ -39,7 +39,7 @@ type Status =
 type FormState = {
   name: string;
   email: string;
-  subject: string;
+  mobileNumber: string;
   message: string;
 };
 
@@ -82,7 +82,7 @@ type FormFieldProps = {
 const INITIAL_FORM: FormState = {
   name: "",
   email: "",
-  subject: "",
+  mobileNumber: "",
   message: "",
 };
 
@@ -311,6 +311,9 @@ export default function Contact() {
   const [status, setStatus] =
     useState<Status>("idle");
 
+  const [errorMessage, setErrorMessage] =
+    useState<string | null>(null);
+
   const isSending =
     status === "sending";
 
@@ -323,12 +326,17 @@ export default function Contact() {
       const { name, value } =
         event.target;
 
+      if (status === "error") {
+        setStatus("idle");
+        setErrorMessage(null);
+      }
+
       setForm((prev) => ({
         ...prev,
         [name]: value,
       }));
     },
-    []
+    [status]
   );
 
   const handleSubmit = useCallback(
@@ -337,28 +345,58 @@ export default function Contact() {
     ) => {
       event.preventDefault();
 
+      const isValidEmail = (value: string) =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+      if (
+        !form.name.trim() ||
+        !form.email.trim() ||
+        !isValidEmail(form.email) ||
+        !form.mobileNumber.trim() ||
+        !form.message.trim()
+      ) {
+        setStatus("error");
+        setErrorMessage(
+          "Please complete all required fields and provide a valid email address."
+        );
+        return;
+      }
+
       setStatus("sending");
+      setErrorMessage(null);
 
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1200)
-      );
+      const formData = new FormData();
+      formData.append("entry.1533642336", form.email);
+      formData.append("entry.92201254", form.name);
+      formData.append("entry.1627041930", form.mobileNumber);
+      formData.append("entry.1141246171", form.message);
 
-      window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent(
-        form.subject
-      )}&body=${encodeURIComponent(
-        `Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`
-      )}`;
+      try {
+        await fetch(
+          "https://docs.google.com/forms/d/e/1FAIpQLSdiI98imxNn52N2qqSXxQnDSPGHbNW4T-AbkvZ_9dnl2PfYqA/formResponse",
+          {
+            method: "POST",
+            mode: "no-cors",
+            body: formData,
+          }
+        );
 
-      setStatus("sent");
-
-      setForm(INITIAL_FORM);
+        setStatus("sent");
+        setForm(INITIAL_FORM);
+      } catch (error) {
+        setStatus("error");
+        setErrorMessage(
+          "Something went wrong while sending your message. Please try again shortly."
+        );
+        return;
+      }
 
       setTimeout(
         () => setStatus("idle"),
         3500
       );
     },
-    [contact.email, form]
+    [form]
   );
 
   return (
@@ -530,8 +568,7 @@ export default function Contact() {
                 </h3>
 
                 <p className="mt-2 max-w-sm text-[0.82rem] leading-5 text-slate-400">
-                  Thanks for reaching out.
-                  I&apos;ll get back soon.
+                  Thank you for reaching out. Your message has been submitted successfully.
                 </p>
               </motion.div>
             ) : (
@@ -549,6 +586,12 @@ export default function Contact() {
                     Share a few details and
                     I&apos;ll reply with the
                     next step.
+                  </p>
+
+                  <p className="mt-2 max-w-lg text-[0.68rem] leading-5 text-slate-500">
+                    Submissions are sent directly
+                    via Google Forms for reliable
+                    delivery.
                   </p>
                 </div>
 
@@ -577,12 +620,14 @@ export default function Contact() {
                 </div>
 
                 <FormField
-                  label="Subject"
-                  name="subject"
-                  value={form.subject}
+                  label="Mobile Number"
+                  name="mobileNumber"
+                  type="tel"
+                  value={form.mobileNumber}
                   onChange={handleChange}
+                  required
                   disabled={isSending}
-                  placeholder="Project or role"
+                  placeholder="Your mobile number"
                 />
 
                 <FormField
@@ -615,8 +660,8 @@ export default function Contact() {
                           size={15}
                           className="animate-spin sm:w-[16px] sm:h-[16px]"
                         />
-                        <span className="hidden sm:inline">Sending</span>
-                        <span className="sm:hidden">Send...</span>
+                        <span className="hidden sm:inline">Sending...</span>
+                        <span className="sm:hidden">Sending...</span>
                       </>
                     ) : (
                       <>
@@ -627,6 +672,12 @@ export default function Contact() {
                     )}
                   </span>
                 </motion.button>
+
+                {status === "error" && errorMessage ? (
+                  <p className="pt-3 text-center text-[0.82rem] leading-6 text-rose-300">
+                    {errorMessage}
+                  </p>
+                ) : null}
 
                 <p className="pt-1 text-center font-mono text-[0.55rem] sm:text-[0.62rem] text-slate-600">
                   {"// response within 24 hours"}

@@ -4,6 +4,8 @@ export type Profile = {
   tagline: string;
   roles: string[];
   bio: string;
+  birthDate?: string | undefined;
+  hobbies?: string[] | undefined;
   location: string;
   availableForWork: boolean;
   resumeUrl: string;
@@ -29,16 +31,41 @@ export type Skill = {
 };
 
 export type Project = {
-  id: string;
-  title: string;
+  id: string; // Used as github repo name or unique id
+  name: string;
   description: string;
-  longDesc: string;
-  tech: string[];
-  github: string;
+  language: string;
+  topics: string[];
+  stars: number;
+  forks: number;
+  githubUrl: string;
+  demoUrl: string;
+  updatedAt: string;
+  readmeSummary?: string | undefined;
+  // Preserved custom metadata
+  title?: string | undefined;
+  longDesc?: string | undefined;
+  tech?: string[] | undefined;
+  featured?: boolean | undefined;
+  gradient?: string | undefined;
+  icon?: string | undefined;
+  github?: string | undefined;
   demo?: string | undefined;
-  featured: boolean;
-  gradient: string;
-  icon: string;
+  
+  // Phase 3 Intelligence Layer fields
+  category?: string | undefined;
+  difficulty?: string | undefined;
+  skillsDemonstrated?: string[] | undefined;
+  keyFeatures?: string[] | undefined;
+  recruiterSummary?: string | undefined;
+  problemSolved?: string | undefined;
+  industryUseCase?: string | undefined;
+  projectType?: string | undefined;
+  aiRelated?: boolean | undefined;
+  technologies?: string[] | undefined;
+  learningOutcomes?: string[] | undefined;
+  resumeWorthiness?: number | undefined;
+  complexityScore?: number | undefined;
 };
 
 export type TimelineEntry = {

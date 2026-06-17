@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import CalendlyBadge from "@/components/CalendlyBadge";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -73,8 +74,9 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} dark`}
     >
-      <body className="dark bg-background text-white antialiased">
+      <body className="dark bg-background text-white antialiased" suppressHydrationWarning>
         {children}
+        <CalendlyBadge />
       </body>
     </html>
   );

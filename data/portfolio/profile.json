@@ -19,11 +19,27 @@
   ],
   "location": "Bhiwani, Haryana, India",
   "availableForWork": true,
-  "resumeUrl": "https://www.canva.com/design/DAFlhUbanOo/view",
+  "resumeUrl": "https://05fbqykb2uklrewk.public.blob.vercel-storage.com/finalresume.pdf",
   "stats": [
-    { "label": "Projects Built", "value": 10, "suffix": "+" },
-    { "label": "Internships", "value": 2, "suffix": "" },
-    { "label": "Students Trained", "value": 50, "suffix": "+" },
-    { "label": "Certifications", "value": 5, "suffix": "+" }
+    {
+      "label": "Projects Built",
+      "value": 10,
+      "suffix": "+"
+    },
+    {
+      "label": "Internships",
+      "value": 2,
+      "suffix": ""
+    },
+    {
+      "label": "Students Trained",
+      "value": 50,
+      "suffix": "+"
+    },
+    {
+      "label": "Certifications",
+      "value": 5,
+      "suffix": "+"
+    }
   ]
 }

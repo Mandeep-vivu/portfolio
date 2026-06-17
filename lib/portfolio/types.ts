@@ -4,6 +4,8 @@ export type Profile = {
   tagline: string;
   roles: string[];
   bio: string;
+  birthDate?: string | undefined;
+  hobbies?: string[] | undefined;
   location: string;
   availableForWork: boolean;
   resumeUrl: string;

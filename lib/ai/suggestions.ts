@@ -17,7 +17,12 @@ const STARTER_SUGGESTIONS = [
 // Context-aware follow-up suggestions
 // ---------------------------------------------------------------------------
 
-const FOLLOW_UP_MAP: Record<string, string[]> = {
+const PINNED_SUGGESTIONS = [
+  "Schedule an interview",
+  "Download his resume",
+];
+
+const FOLLOW_UP_MAP = {
   projects: [
     "What technologies did he use?",
     "Does he have more projects?",
@@ -74,6 +79,7 @@ const FOLLOW_UP_MAP: Record<string, string[]> = {
   ],
 };
 
+
 // Topics user has already asked about, determined by result types
 function getDiscussedTopics(messages: ChatMessage[]): Set<string> {
   const topics = new Set<string>();
@@ -100,27 +106,28 @@ export function generateSuggestions(
   messages: ChatMessage[],
   lastResultType?: AgentResult["type"],
 ): string[] {
-  // If no messages beyond welcome, return starters
+  // If no messages beyond welcome, return starters but ensure PINNED_SUGGESTIONS are at the top
   const userMessages = messages.filter((m) => m.role === "user");
   if (userMessages.length === 0) {
-    return STARTER_SUGGESTIONS;
+    const starters = STARTER_SUGGESTIONS.filter(s => !PINNED_SUGGESTIONS.includes(s));
+    return [...PINNED_SUGGESTIONS, ...starters].slice(0, 8);
   }
 
   const discussed = getDiscussedTopics(messages);
-  const resultType = lastResultType ?? "text";
-
+  // Determine result type safely
+  const resultTypeKey = (lastResultType && (lastResultType in FOLLOW_UP_MAP)) ? lastResultType : "text";
+  const resultType = resultTypeKey as keyof typeof FOLLOW_UP_MAP;
   // Get base follow-ups from the last result type
   const fallback = FOLLOW_UP_MAP.text ?? [];
   const baseSuggestions = FOLLOW_UP_MAP[resultType] ?? fallback;
 
-  // Filter out topics already discussed to surface new areas
-  const filtered = baseSuggestions.filter(() => {
-    // Keep all, but we'll sort by novelty below
-    return true;
-  });
+  // Filter out any of the alwaysPresent suggestions to avoid duplicates
+  const dynamicCandidates = baseSuggestions.filter(
+    (s) => !PINNED_SUGGESTIONS.includes(s)
+  );
 
   // Sort: undiscussed topics first
-  const sorted = [...filtered].sort((a, b) => {
+  const sorted = [...dynamicCandidates].sort((a, b) => {
     const aDiscussed = isTopicDiscussed(a, discussed);
     const bDiscussed = isTopicDiscussed(b, discussed);
     if (aDiscussed && !bDiscussed) return 1;
@@ -128,18 +135,35 @@ export function generateSuggestions(
     return 0;
   });
 
-  // Add a couple of "starter" suggestions that haven't been asked
-  const unexplored = STARTER_SUGGESTIONS.filter(
-    (s) => !isTopicDiscussed(s, discussed),
+  // Also extract unexplored starters that are not in alwaysPresent
+  const unexploredStarters = STARTER_SUGGESTIONS.filter(
+    (s) => !PINNED_SUGGESTIONS.includes(s) && !isTopicDiscussed(s, discussed)
   );
-  const result = [...sorted];
-  for (const s of unexplored) {
-    if (!result.includes(s) && result.length < 6) {
+
+  const result = [...PINNED_SUGGESTIONS];
+
+  // First fill with sorted dynamic suggestions
+  for (const s of sorted) {
+    if (!result.includes(s) && result.length < 8) {
       result.push(s);
     }
   }
 
-  return result.slice(0, 6);
+  // Then fill with unexplored starters
+  for (const s of unexploredStarters) {
+    if (!result.includes(s) && result.length < 8) {
+      result.push(s);
+    }
+  }
+
+  // If still not full, add remaining starter suggestions that are not already present
+  for (const s of STARTER_SUGGESTIONS) {
+    if (!result.includes(s) && result.length < 8) {
+      result.push(s);
+    }
+  }
+
+  return result;
 }
 
 function isTopicDiscussed(suggestion: string, discussed: Set<string>): boolean {

@@ -37,12 +37,12 @@ function isStreamEvent(obj: unknown): obj is StreamEvent {
 
 const STORAGE_KEY = "mandeep-ai-chat-v1";
 const DEFAULT_SUGGESTIONS = [
+  "Schedule an interview",
+  "Download his resume",
   "Tell me about Mandeep",
   "What AI projects has he built?",
   "What is his strongest technical stack?",
-  "Download his resume",
   "How can I contact him?",
-  "Schedule an interview",
 ];
 
 const WELCOME: UIMessage = {
@@ -410,7 +410,7 @@ export default function AIChat() {
                         transition={{ delay: 0.3, duration: 0.3 }}
                         className="flex flex-wrap gap-1.5 pl-1"
                       >
-                        {suggestions.slice(0, 3).map((suggestion) => (
+                        {suggestions.slice(0, 5).map((suggestion) => (
                           <button
                             key={suggestion}
                             type="button"

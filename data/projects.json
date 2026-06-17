@@ -1,5 +1,572 @@
 [
   {
+    "id": "mt-stgat-grid-fault-research",
+    "name": "MT-STGAT: Multi-Task Spatiotemporal Graph Attention Network",
+    "description": "M.E. major research project for intelligent power-grid fault detection, classification, and localization using GRU + GATv2 on the IEEE 118-bus grid.",
+    "language": "Python",
+    "topics": [
+      "Deep Learning",
+      "Graph Neural Networks",
+      "Power Systems",
+      "Fault Detection",
+      "Research"
+    ],
+    "stars": 0,
+    "forks": 0,
+    "githubUrl": "",
+    "demoUrl": "",
+    "updatedAt": "2026-06-17T00:00:00Z",
+    "readmeSummary": "Designed a GRU + GATv2 multi-task spatiotemporal graph attention architecture for fault detection, classification, and localization on the IEEE 118-bus grid. Achieved 100% fault detection accuracy, 81.29% macro-F1 score, and 66.94% Top-1 localization accuracy. IEEE conference paper submitted; repository/link available to recruiters on request until publication.",
+    "title": "MT-STGAT: Multi-Task Spatiotemporal Graph Attention Network",
+    "longDesc": "M.E. Major Research Project at Chandigarh University, 2025-2026. IEEE conference paper submitted. Built a research-level GRU + GATv2 architecture for fault detection, classification, and localization on the IEEE 118-bus power grid.",
+    "tech": [
+      "Python",
+      "PyTorch",
+      "GRU",
+      "GATv2",
+      "Graph Neural Networks",
+      "Spatiotemporal Modeling",
+      "IEEE 118-Bus System"
+    ],
+    "featured": true,
+    "gradient": "from-cyan-600/20 to-violet-600/20",
+    "icon": "GNN",
+    "category": "AI Research, Power Systems",
+    "difficulty": "Expert",
+    "skillsDemonstrated": [
+      "Graph Neural Networks",
+      "Deep Learning Research",
+      "Spatiotemporal Modeling",
+      "Multi-Task Learning",
+      "Power Grid Fault Analysis",
+      "Model Evaluation"
+    ],
+    "keyFeatures": [
+      "GRU + GATv2 architecture",
+      "Fault detection, classification, and localization",
+      "IEEE 118-bus grid experimentation",
+      "100% fault detection accuracy",
+      "81.29% macro-F1 score",
+      "66.94% Top-1 localization accuracy",
+      "IEEE conference paper submitted",
+      "Private/hidden repository available to recruiters on request until publication"
+    ],
+    "recruiterSummary": "Research-level M.E. major project applying GRU and GATv2 graph attention modeling to power-grid fault detection, classification, and localization. The work demonstrates advanced AI research ability, graph neural network design, rigorous evaluation, and domain application in smart grids. GitHub/repository access can be provided to recruiters on request until IEEE publication is complete.",
+    "problemSolved": "Improves intelligent monitoring of electrical power grids by detecting, classifying, and localizing faults on a complex IEEE 118-bus benchmark system.",
+    "industryUseCase": "Smart Grid, Energy, Power Systems",
+    "projectType": "M.E. Major Research Project, IEEE Paper Submitted, Private Repository",
+    "aiRelated": true,
+    "technologies": [
+      "Python",
+      "PyTorch",
+      "GRU",
+      "GATv2",
+      "Graph Neural Networks",
+      "Deep Learning",
+      "Power Systems Simulation"
+    ],
+    "learningOutcomes": [
+      "Designing multi-task graph neural network architectures",
+      "Applying spatiotemporal deep learning to power systems",
+      "Evaluating detection, classification, and localization metrics",
+      "Preparing research work for IEEE conference submission"
+    ],
+    "resumeWorthiness": 96,
+    "complexityScore": 94
+  },
+  {
+    "id": "single-lead-ecg-diagnostic-analysis",
+    "name": "Single-Lead ECG Diagnostic Analysis using Deep Learning",
+    "description": "M.Tech/M.E. major research group project evaluating deep learning models for cardiac disease classification from ECG signals using the PTB-XL dataset.",
+    "language": "Python",
+    "topics": [
+      "Deep Learning",
+      "Healthcare AI",
+      "ECG",
+      "Time Series",
+      "Research"
+    ],
+    "stars": 0,
+    "forks": 0,
+    "githubUrl": "",
+    "demoUrl": "",
+    "updatedAt": "2026-06-17T00:00:00Z",
+    "readmeSummary": "Trained and evaluated 48 deep learning models including ResNet1D, InceptionTime, and BiLSTM on the PTB-XL dataset with 21,799 ECG records across 5 cardiac disease classes. Conducted greedy lead reduction experiments and identified a non-linear performance cliff below 4 leads. Group major research project; repository/link available to recruiters on request until publication.",
+    "title": "Single-Lead ECG Diagnostic Analysis using Deep Learning",
+    "longDesc": "M.Tech/M.E. Major Research Group Project, 2025-2026. Trained and evaluated 48 deep learning models on PTB-XL ECG records for cardiac disease classification and lead-reduction analysis.",
+    "tech": [
+      "Python",
+      "Deep Learning",
+      "ResNet1D",
+      "InceptionTime",
+      "BiLSTM",
+      "PTB-XL",
+      "ECG Signal Analysis"
+    ],
+    "featured": true,
+    "gradient": "from-rose-600/20 to-cyan-600/20",
+    "icon": "ECG",
+    "category": "AI Research, Healthcare",
+    "difficulty": "Expert",
+    "skillsDemonstrated": [
+      "Medical AI",
+      "Deep Learning",
+      "Time-Series Classification",
+      "Signal Processing",
+      "Experimental Design",
+      "Model Benchmarking"
+    ],
+    "keyFeatures": [
+      "48 trained and evaluated deep learning models",
+      "ResNet1D, InceptionTime, and BiLSTM architectures",
+      "PTB-XL dataset with 21,799 ECG records",
+      "5 cardiac disease classes",
+      "Greedy lead reduction experiments",
+      "Observed non-linear performance cliff below 4 leads",
+      "Group major research project",
+      "Private/hidden repository available to recruiters on request until publication"
+    ],
+    "recruiterSummary": "Research-level healthcare AI group project focused on ECG diagnostic analysis. Benchmarked 48 deep learning configurations on PTB-XL, covering ResNet1D, InceptionTime, and BiLSTM for 5 cardiac disease classes, with additional lead-reduction experiments. Repository access can be provided to recruiters on request until publication is complete.",
+    "problemSolved": "Explores how accurately cardiac disease classes can be detected from reduced ECG lead configurations, helping evaluate practical low-lead diagnostic AI systems.",
+    "industryUseCase": "Healthcare, Clinical Decision Support, Biomedical AI",
+    "projectType": "M.Tech/M.E. Major Research Group Project, Private Repository",
+    "aiRelated": true,
+    "technologies": [
+      "Python",
+      "Deep Learning",
+      "ResNet1D",
+      "InceptionTime",
+      "BiLSTM",
+      "PTB-XL",
+      "ECG Signal Processing"
+    ],
+    "learningOutcomes": [
+      "Benchmarking deep learning models for biomedical time-series data",
+      "Working with large ECG datasets",
+      "Designing lead-reduction experiments",
+      "Analyzing performance tradeoffs in diagnostic AI systems"
+    ],
+    "resumeWorthiness": 95,
+    "complexityScore": 92
+  },
+  {
+    "id": "MCTapp",
+    "name": "MCTapp",
+    "description": "",
+    "language": "C++",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "githubUrl": "https://github.com/Mandeep-vivu/MCTapp",
+    "demoUrl": "",
+    "updatedAt": "2026-06-14T12:31:35Z",
+    "readmeSummary": "Developed a Flutter-based mobile application to track menstrual health, including PCOS/PCOD symptoms, leveraging C++ for core logic. Implemented a data science pipeline for predict...",
+    "title": "MCTapp",
+    "longDesc": "",
+    "tech": [],
+    "featured": false,
+    "gradient": "from-orange-600/20 to-red-600/20",
+    "icon": "CODE",
+    "category": "Mobile Development",
+    "difficulty": "Intermediate",
+    "skillsDemonstrated": [
+      "Flutter",
+      "Dart",
+      "C++",
+      "Data Analysis",
+      "Predictive Modeling",
+      "Mobile Application Development"
+    ],
+    "keyFeatures": [
+      "Menstrual cycle tracking",
+      "PCOS/PCOD symptom logging",
+      "Historical data analysis",
+      "Data-driven predictions for health patterns",
+      "User-friendly mobile interface"
+    ],
+    "recruiterSummary": "Developed a Flutter-based mobile application to track menstrual health, including PCOS/PCOD symptoms, leveraging C++ for core logic. Implemented a data science pipeline for predictive modeling based on historical user data, offering valuable insights into health patterns. This project demonstrates proficiency in cross-platform mobile development, data analysis, and practical application of data-driven solutions in a healthcare context.",
+    "problemSolved": "It provides individuals with a tool to monitor menstrual health, track specific symptoms like PCOS/PCOD, and receive data-driven predictions, aiding in proactive health management.",
+    "industryUseCase": "Healthcare",
+    "projectType": "Portfolio Project",
+    "aiRelated": true,
+    "technologies": [
+      "Flutter",
+      "Dart",
+      "C++",
+      "Python",
+      "Machine Learning Libraries (e.g., Pandas, Scikit-learn)",
+      "Database (e.g., SQLite, Firebase)"
+    ],
+    "learningOutcomes": [
+      "Building cross-platform mobile applications with Flutter",
+      "Integrating data science pipelines for predictive analytics",
+      "Designing user interfaces for health-related applications",
+      "Managing and utilizing historical data for insights",
+      "Applying C++ in mobile application development context"
+    ],
+    "resumeWorthiness": 65,
+    "complexityScore": 68
+  },
+  {
+    "id": "to_do_app",
+    "name": "to_do_app",
+    "description": "",
+    "language": "Dart",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "githubUrl": "https://github.com/Mandeep-vivu/to_do_app",
+    "demoUrl": "",
+    "updatedAt": "2026-06-14T12:27:28Z",
+    "readmeSummary": "Developed a functional mobile to-do application using Flutter and Dart, demonstrating core mobile development skills including UI implementation and CRUD operations for task manage...",
+    "title": "to_do_app",
+    "longDesc": "",
+    "tech": [],
+    "featured": false,
+    "gradient": "from-emerald-600/20 to-teal-600/20",
+    "icon": "CODE",
+    "category": "Mobile Development",
+    "difficulty": "Beginner",
+    "skillsDemonstrated": [
+      "Dart",
+      "Flutter",
+      "Mobile Application Development",
+      "UI/UX Design"
+    ],
+    "keyFeatures": [
+      "Add tasks",
+      "Update tasks",
+      "Delete tasks",
+      "Calendar integration for task management",
+      "Clock-based features for tasks"
+    ],
+    "recruiterSummary": "Developed a functional mobile to-do application using Flutter and Dart, demonstrating core mobile development skills including UI implementation and CRUD operations for task management. This project showcases proficiency in building cross-platform applications with calendar and time-based features, ideal for personal productivity tools.",
+    "problemSolved": "This project helps users organize and track their daily tasks efficiently using a calendar and time-based system.",
+    "industryUseCase": "General Purpose",
+    "projectType": "Portfolio Project",
+    "aiRelated": false,
+    "technologies": [
+      "Dart",
+      "Flutter"
+    ],
+    "learningOutcomes": [
+      "Fundamental Flutter UI development",
+      "Implementing CRUD operations in a mobile app",
+      "Integrating calendar and time features",
+      "Basic state management for a mobile application",
+      "Cross-platform mobile development principles"
+    ],
+    "resumeWorthiness": 35,
+    "complexityScore": 25
+  },
+  {
+    "id": "flutterSampleApps",
+    "name": "flutterSampleApps",
+    "description": "it has subfolder for multiple flutter apps and concepts",
+    "language": "Dart",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "githubUrl": "https://github.com/Mandeep-vivu/flutterSampleApps",
+    "demoUrl": "",
+    "updatedAt": "2026-06-14T12:21:25Z",
+    "readmeSummary": "Developed a comprehensive collection of Flutter sample applications demonstrating core mobile development competencies. This project showcases practical experience in building dyna...",
+    "title": "flutterSampleApps",
+    "longDesc": "it has subfolder for multiple flutter apps and concepts",
+    "tech": [],
+    "featured": false,
+    "gradient": "from-pink-600/20 to-rose-600/20",
+    "icon": "CODE",
+    "category": "Mobile Development",
+    "difficulty": "Intermediate",
+    "skillsDemonstrated": [
+      "Dart",
+      "Flutter",
+      "Mobile Development",
+      "RESTful APIs",
+      "UI/UX Design",
+      "Image Handling",
+      "Authentication (OTP)"
+    ],
+    "keyFeatures": [
+      "Multiple distinct Flutter application examples",
+      "Implementation of page flow and navigation",
+      "Image uploading functionality",
+      "Integration with RESTful APIs",
+      "OTP generation for user authentication"
+    ],
+    "recruiterSummary": "Developed a comprehensive collection of Flutter sample applications demonstrating core mobile development competencies. This project showcases practical experience in building dynamic user interfaces, integrating with backend REST APIs for data exchange, implementing image upload capabilities, and securing user interactions with OTP generation. The various sub-projects highlight proficiency in Dart and Flutter framework essentials.",
+    "problemSolved": "This project provides practical, hands-on examples for developers to learn and understand fundamental Flutter mobile application development concepts and common features.",
+    "industryUseCase": "General Purpose",
+    "projectType": "Portfolio Project",
+    "aiRelated": false,
+    "technologies": [
+      "Dart",
+      "Flutter",
+      "REST APIs"
+    ],
+    "learningOutcomes": [
+      "Mastering Flutter widget hierarchy and composition",
+      "Implementing efficient page navigation and routing",
+      "Handling asynchronous operations for API calls",
+      "Understanding image processing and file upload mechanisms",
+      "Developing basic authentication flows with OTP",
+      "Structuring multi-project repositories"
+    ],
+    "resumeWorthiness": 65,
+    "complexityScore": 55
+  },
+  {
+    "id": "coursera_ibm_capstore_project",
+    "name": "coursera_ibm_capstore_project",
+    "description": "",
+    "language": "Jupyter Notebook",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "githubUrl": "https://github.com/Mandeep-vivu/coursera_ibm_capstore_project",
+    "demoUrl": "",
+    "updatedAt": "2026-06-14T12:17:00Z",
+    "readmeSummary": "A beginner-level web development project built with Jupyter Notebook. Demonstrates practical implementation of Jupyter Notebook. It solves the problem of \"Provides open-source util...",
+    "title": "coursera_ibm_capstore_project",
+    "longDesc": "",
+    "tech": [],
+    "featured": false,
+    "gradient": "from-emerald-600/20 to-teal-600/20",
+    "icon": "CODE",
+    "category": "Web Development",
+    "difficulty": "Beginner",
+    "skillsDemonstrated": [
+      "Jupyter Notebook"
+    ],
+    "keyFeatures": [
+      "Code repository",
+      "Open-source development"
+    ],
+    "recruiterSummary": "A beginner-level web development project built with Jupyter Notebook. Demonstrates practical implementation of Jupyter Notebook. It solves the problem of \"Provides open-source utility and code examples.\" and showcases software engineering depth.",
+    "problemSolved": "Provides open-source utility and code examples.",
+    "industryUseCase": "Education",
+    "projectType": "Personal Project",
+    "aiRelated": false,
+    "technologies": [
+      "Jupyter Notebook"
+    ],
+    "learningOutcomes": [
+      "Technical design patterns",
+      "Code documentation",
+      "Software version control"
+    ],
+    "resumeWorthiness": 35,
+    "complexityScore": 40
+  },
+  {
+    "id": "technozarre_app_tech_festival_event_registration",
+    "name": "technozarre_app_tech_festival_event_registration",
+    "description": "app",
+    "language": "Dart",
+    "topics": [],
+    "stars": 0,
+    "forks": 1,
+    "githubUrl": "https://github.com/Mandeep-vivu/technozarre_app_tech_festival_event_registration",
+    "demoUrl": "",
+    "updatedAt": "2026-06-14T12:12:08Z",
+    "readmeSummary": "Developed a cross-platform mobile application using Flutter and Dart to manage and streamline tech festival event registrations. The project features an intuitive UI/UX for browsin...",
+    "title": "technozarre_app_tech_festival_event_registration",
+    "longDesc": "app",
+    "tech": [],
+    "featured": false,
+    "gradient": "from-pink-600/20 to-rose-600/20",
+    "icon": "CODE",
+    "category": "Mobile Development",
+    "difficulty": "Intermediate",
+    "skillsDemonstrated": [
+      "Dart",
+      "Flutter",
+      "Mobile Development",
+      "UI/UX Design",
+      "State Management (Flutter)"
+    ],
+    "keyFeatures": [
+      "Event Listing and Display",
+      "Detailed Event Information View",
+      "User Event Registration",
+      "Intuitive Mobile User Interface"
+    ],
+    "recruiterSummary": "Developed a cross-platform mobile application using Flutter and Dart to manage and streamline tech festival event registrations. The project features an intuitive UI/UX for browsing events, viewing details, and completing the registration process. This demonstrates proficiency in mobile application development, UI design principles, and building functional user-facing solutions.",
+    "problemSolved": "This project provides a digital platform to streamline the registration process for tech festival events, enhancing user experience and administrative efficiency.",
+    "industryUseCase": "General Purpose",
+    "projectType": "Portfolio Project",
+    "aiRelated": false,
+    "technologies": [
+      "Dart",
+      "Flutter",
+      "Android",
+      "iOS"
+    ],
+    "learningOutcomes": [
+      "Cross-platform mobile application development using Flutter framework",
+      "Implementation of responsive and appealing UI layouts",
+      "Understanding and applying Flutter's state management paradigms",
+      "Designing and building event-driven mobile interfaces"
+    ],
+    "resumeWorthiness": 70,
+    "complexityScore": 55
+  },
+  {
+    "id": "musicplayer",
+    "name": "musicplayer",
+    "description": "hii",
+    "language": "Dart",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "githubUrl": "https://github.com/Mandeep-vivu/musicplayer",
+    "demoUrl": "",
+    "updatedAt": "2026-06-14T12:08:45Z",
+    "readmeSummary": "Developed a foundational mobile music player using Flutter and Dart, demonstrating core competencies in mobile application development, user interface design, and local multimedia ...",
+    "title": "musicplayer",
+    "longDesc": "hii",
+    "tech": [],
+    "featured": false,
+    "gradient": "from-violet-600/20 to-cyan-600/20",
+    "icon": "CODE",
+    "category": "Mobile Development",
+    "difficulty": "Beginner",
+    "skillsDemonstrated": [
+      "Dart",
+      "Flutter",
+      "Mobile UI/UX",
+      "Local File I/O",
+      "Audio Playback"
+    ],
+    "keyFeatures": [
+      "Load MP3 music from device gallery",
+      "Play selected MP3 music files"
+    ],
+    "recruiterSummary": "Developed a foundational mobile music player using Flutter and Dart, demonstrating core competencies in mobile application development, user interface design, and local multimedia file handling. This project showcases the ability to build functional cross-platform applications for basic entertainment purposes.",
+    "problemSolved": "It provides a simple mobile application for users to play local MP3 music files stored on their device.",
+    "industryUseCase": "General Purpose",
+    "projectType": "Personal Project",
+    "aiRelated": false,
+    "technologies": [
+      "Dart",
+      "Flutter"
+    ],
+    "learningOutcomes": [
+      "Basic Flutter application structure",
+      "Handling user interface components in Flutter",
+      "Accessing local files/gallery on a mobile device",
+      "Implementing audio playback functionality",
+      "Cross-platform mobile development fundamentals"
+    ],
+    "resumeWorthiness": 25,
+    "complexityScore": 20
+  },
+  {
+    "id": "PROJECT-RDBMS",
+    "name": "PROJECT-RDBMS",
+    "description": "Starting",
+    "language": "Shell",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "githubUrl": "https://github.com/Mandeep-vivu/PROJECT-RDBMS",
+    "demoUrl": "",
+    "updatedAt": "2026-06-14T12:02:52Z",
+    "readmeSummary": "This foundational project demonstrates proficiency in relational database management, specifically utilizing PostgreSQL and Bash scripting. It showcases the ability to programmatic...",
+    "title": "Celestial Bodies Database",
+    "longDesc": "Designed a full PostgreSQL database schema for celestial bodies including galaxies, stars, planets, and moons. Used Bash scripting for data ingestion automation, complex SQL queries, and reporting.",
+    "tech": [
+      "PostgreSQL",
+      "Bash",
+      "SQL",
+      "Linux"
+    ],
+    "featured": true,
+    "gradient": "from-blue-600/20 to-indigo-600/20",
+    "icon": "DB",
+    "category": "Database Management",
+    "difficulty": "Beginner",
+    "skillsDemonstrated": [
+      "Bash Scripting",
+      "PostgreSQL",
+      "RDBMS Concepts"
+    ],
+    "keyFeatures": [
+      "Basic interaction with PostgreSQL database",
+      "Scripting database commands using Bash"
+    ],
+    "recruiterSummary": "This foundational project demonstrates proficiency in relational database management, specifically utilizing PostgreSQL and Bash scripting. It showcases the ability to programmatically interact with a database, a fundamental skill for data engineering and backend development roles. The initiative highlights a solid grasp of core RDBMS concepts and command-line automation.",
+    "problemSolved": "This project establishes fundamental skills in relational database management and scripting, essential for basic data storage and manipulation.",
+    "industryUseCase": "Education",
+    "projectType": "Academic Project",
+    "aiRelated": false,
+    "technologies": [
+      "Bash",
+      "PostgreSQL"
+    ],
+    "learningOutcomes": [
+      "Understanding of basic RDBMS operations",
+      "Fundamentals of Bash scripting for system interaction",
+      "Connecting and executing commands on a PostgreSQL database"
+    ],
+    "resumeWorthiness": 20,
+    "complexityScore": 15
+  },
+  {
+    "id": "NEWS-AND-TEMPATURE-WEBSITE",
+    "name": "NEWS-AND-TEMPATURE-WEBSITE",
+    "description": "",
+    "language": "JavaScript",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "githubUrl": "https://github.com/Mandeep-vivu/NEWS-AND-TEMPATURE-WEBSITE",
+    "demoUrl": "",
+    "updatedAt": "2026-06-14T11:58:21Z",
+    "readmeSummary": "Developed a foundational client-side web application using HTML, CSS, and JavaScript to asynchronously fetch and display real-time news and weather data via external APIs. This pro...",
+    "title": "NEWS-AND-TEMPATURE-WEBSITE",
+    "longDesc": "",
+    "tech": [],
+    "featured": false,
+    "gradient": "from-yellow-600/20 to-amber-600/20",
+    "icon": "CODE",
+    "category": "Web Development",
+    "difficulty": "Beginner",
+    "skillsDemonstrated": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "REST API Consumption",
+      "DOM Manipulation"
+    ],
+    "keyFeatures": [
+      "Fetching news data via API",
+      "Displaying news articles",
+      "Fetching temperature data via API",
+      "Displaying current temperature"
+    ],
+    "recruiterSummary": "Developed a foundational client-side web application using HTML, CSS, and JavaScript to asynchronously fetch and display real-time news and weather data via external APIs. This project demonstrates core front-end development principles, API integration, and dynamic content rendering, suitable for showcasing basic web development aptitude.",
+    "problemSolved": "This project provides a simple web interface for users to view current news headlines and local temperature information.",
+    "industryUseCase": "General Purpose",
+    "projectType": "Personal Project",
+    "aiRelated": false,
+    "technologies": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Web APIs"
+    ],
+    "learningOutcomes": [
+      "Understanding fundamental web page structuring with HTML",
+      "Styling web pages using CSS",
+      "Manipulating the Document Object Model (DOM) with JavaScript",
+      "Making asynchronous HTTP requests to external APIs"
+    ],
+    "resumeWorthiness": 30,
+    "complexityScore": 25
+  },
+  {
     "id": "portfolio",
     "name": "portfolio",
     "description": "",
@@ -76,47 +643,6 @@
     "complexityScore": 85
   },
   {
-    "id": "MCTapp",
-    "name": "MCTapp",
-    "description": "",
-    "language": "C++",
-    "topics": [],
-    "stars": 0,
-    "forks": 0,
-    "githubUrl": "https://github.com/Mandeep-vivu/MCTapp",
-    "demoUrl": "",
-    "updatedAt": "2025-11-09T21:42:30Z",
-    "readmeSummary": "This repository features a foundational C++ project. Due to the lack of a detailed README or project description, specific business value or advanced technical implementations are ...",
-    "title": "MCTapp",
-    "longDesc": "",
-    "tech": [],
-    "featured": false,
-    "gradient": "from-orange-600/20 to-red-600/20",
-    "icon": "CODE",
-    "category": "Software Development",
-    "difficulty": "Beginner",
-    "skillsDemonstrated": [
-      "C++ Programming"
-    ],
-    "keyFeatures": [
-      "Basic application structure"
-    ],
-    "recruiterSummary": "This repository features a foundational C++ project. Due to the lack of a detailed README or project description, specific business value or advanced technical implementations are not identifiable. It primarily indicates exposure to C++ development.",
-    "problemSolved": "The specific problem addressed by this project is not discernible from the provided metadata and README.",
-    "industryUseCase": "General Purpose",
-    "projectType": "Personal Project",
-    "aiRelated": false,
-    "technologies": [
-      "C++"
-    ],
-    "learningOutcomes": [
-      "Understanding of basic C++ project setup",
-      "Familiarity with C++ compilation processes"
-    ],
-    "resumeWorthiness": 5,
-    "complexityScore": 5
-  },
-  {
     "id": "technozarre_web",
     "name": "technozarre_web",
     "description": "website of technozarre event",
@@ -163,290 +689,6 @@
     "complexityScore": 15
   },
   {
-    "id": "courseraibm",
-    "name": "courseraibm",
-    "description": "",
-    "language": "Jupyter Notebook",
-    "topics": [],
-    "stars": 0,
-    "forks": 0,
-    "githubUrl": "https://github.com/Mandeep-vivu/courseraibm",
-    "demoUrl": "",
-    "updatedAt": "2023-06-07T21:11:35Z",
-    "readmeSummary": "This entry represents a foundational academic project, likely from a Coursera IBM program, demonstrating initial proficiency with Jupyter Notebooks and Python for data analysis or ...",
-    "title": "courseraibm",
-    "longDesc": "",
-    "tech": [],
-    "featured": false,
-    "gradient": "from-violet-600/20 to-cyan-600/20",
-    "icon": "CODE",
-    "category": "Data Science",
-    "difficulty": "Beginner",
-    "skillsDemonstrated": [
-      "Python",
-      "Jupyter Notebook"
-    ],
-    "keyFeatures": [
-      "No specific features described or inferable from provided metadata"
-    ],
-    "recruiterSummary": "This entry represents a foundational academic project, likely from a Coursera IBM program, demonstrating initial proficiency with Jupyter Notebooks and Python for data analysis or programming exercises. While specific project details are unavailable, it indicates engagement with structured learning modules and foundational technical skills.",
-    "problemSolved": "Undetermined; likely an educational exercise focused on foundational concepts rather than solving a specific real-world problem.",
-    "industryUseCase": "Education",
-    "projectType": "Academic Project",
-    "aiRelated": true,
-    "technologies": [
-      "Python",
-      "Jupyter Notebook"
-    ],
-    "learningOutcomes": [
-      "Understanding of Jupyter Notebook environment",
-      "Basic Python programming",
-      "Execution of course-provided code or exercises"
-    ],
-    "resumeWorthiness": 15,
-    "complexityScore": 5
-  },
-  {
-    "id": "flutterSampleApps",
-    "name": "flutterSampleApps",
-    "description": "it has subfolder for multiple flutter apps and concepts",
-    "language": "Dart",
-    "topics": [],
-    "stars": 0,
-    "forks": 0,
-    "githubUrl": "https://github.com/Mandeep-vivu/flutterSampleApps",
-    "demoUrl": "",
-    "updatedAt": "2023-06-07T05:45:58Z",
-    "readmeSummary": "This repository serves as a foundational collection of Flutter sample applications, demonstrating proficiency in mobile UI development using Dart. It showcases an understanding of ...",
-    "title": "flutterSampleApps",
-    "longDesc": "it has subfolder for multiple flutter apps and concepts",
-    "tech": [],
-    "featured": false,
-    "gradient": "from-pink-600/20 to-rose-600/20",
-    "icon": "CODE",
-    "category": "Mobile Development",
-    "difficulty": "Beginner",
-    "skillsDemonstrated": [
-      "Dart",
-      "Flutter"
-    ],
-    "keyFeatures": [
-      "Collection of Flutter sample applications",
-      "Demonstration of various Flutter concepts"
-    ],
-    "recruiterSummary": "This repository serves as a foundational collection of Flutter sample applications, demonstrating proficiency in mobile UI development using Dart. It showcases an understanding of core Flutter concepts, suitable for individuals building initial portfolio pieces in cross-platform development.",
-    "problemSolved": "Provides practical examples and conceptual implementations to aid in learning Flutter development and understanding various UI patterns.",
-    "industryUseCase": "Education",
-    "projectType": "Portfolio Project",
-    "aiRelated": false,
-    "technologies": [
-      "Dart",
-      "Flutter SDK"
-    ],
-    "learningOutcomes": [
-      "Understanding core Flutter widgets and layouts",
-      "Implementing basic mobile application UIs",
-      "Grasping fundamental Dart programming for mobile development"
-    ],
-    "resumeWorthiness": 25,
-    "complexityScore": 15
-  },
-  {
-    "id": "technozarreap",
-    "name": "technozarreap",
-    "description": "app",
-    "language": "Dart",
-    "topics": [],
-    "stars": 0,
-    "forks": 1,
-    "githubUrl": "https://github.com/Mandeep-vivu/technozarreap",
-    "demoUrl": "",
-    "updatedAt": "2023-05-23T13:44:25Z",
-    "readmeSummary": "This Flutter project demonstrates foundational mobile application development skills using Dart, focusing on basic UI implementation. The project showcases the ability to set up a ...",
-    "title": "Technozarre App",
-    "longDesc": "Served as Lead Architect for a Flutter mobile application enabling students to register for college technical fest events. Implemented real-time updates via Socket.IO, integrated REST APIs, and delivered a polished cross-platform UX.",
-    "tech": [
-      "Flutter",
-      "Dart",
-      "Socket.IO",
-      "REST API"
-    ],
-    "featured": true,
-    "gradient": "from-emerald-600/20 to-teal-600/20",
-    "icon": "APP",
-    "category": "Mobile Development",
-    "difficulty": "Beginner",
-    "skillsDemonstrated": [
-      "Dart",
-      "Flutter",
-      "Mobile UI Development"
-    ],
-    "keyFeatures": [
-      "Basic mobile application UI",
-      "Image display"
-    ],
-    "recruiterSummary": "This Flutter project demonstrates foundational mobile application development skills using Dart, focusing on basic UI implementation. The project showcases the ability to set up a Flutter environment and render simple user interfaces, providing a basic understanding of cross-platform mobile development.",
-    "problemSolved": "This project serves as a foundational exercise in mobile application development, demonstrating the initial setup and basic UI rendering capabilities of Flutter.",
-    "industryUseCase": "General Purpose",
-    "projectType": "Personal Project",
-    "aiRelated": false,
-    "technologies": [
-      "Dart",
-      "Flutter"
-    ],
-    "learningOutcomes": [
-      "Gained experience with Flutter project setup",
-      "Implemented basic mobile UI components",
-      "Understood Flutter's widget-based architecture"
-    ],
-    "resumeWorthiness": 15,
-    "complexityScore": 10
-  },
-  {
-    "id": "musicplayer",
-    "name": "musicplayer",
-    "description": "hii",
-    "language": "Dart",
-    "topics": [],
-    "stars": 0,
-    "forks": 0,
-    "githubUrl": "https://github.com/Mandeep-vivu/musicplayer",
-    "demoUrl": "",
-    "updatedAt": "2023-05-08T13:11:02Z",
-    "readmeSummary": "Developed a foundational mobile music player application using Dart and Flutter, demonstrating core UI development skills and basic media handling. This project showcases initial c...",
-    "title": "musicplayer",
-    "longDesc": "hii",
-    "tech": [],
-    "featured": false,
-    "gradient": "from-violet-600/20 to-cyan-600/20",
-    "icon": "CODE",
-    "category": "Mobile Development",
-    "difficulty": "Beginner",
-    "skillsDemonstrated": [
-      "Dart",
-      "Flutter",
-      "Mobile UI Development"
-    ],
-    "keyFeatures": [
-      "Basic user interface for music playback (inferred)",
-      "Media file handling (inferred)"
-    ],
-    "recruiterSummary": "Developed a foundational mobile music player application using Dart and Flutter, demonstrating core UI development skills and basic media handling. This project showcases initial capabilities in cross-platform mobile app creation, serving as a basic proof-of-concept for mobile media applications.",
-    "problemSolved": "This project provides a simple interface for local music playback on mobile devices.",
-    "industryUseCase": "Entertainment",
-    "projectType": "Personal Project",
-    "aiRelated": false,
-    "technologies": [
-      "Dart",
-      "Flutter"
-    ],
-    "learningOutcomes": [
-      "Fundamental mobile UI design and implementation with Flutter",
-      "Basic state management in Flutter applications",
-      "Integration of media playback functionalities"
-    ],
-    "resumeWorthiness": 15,
-    "complexityScore": 12
-  },
-  {
-    "id": "PROJECT-RDBMS",
-    "name": "PROJECT-RDBMS",
-    "description": "Starting",
-    "language": "Shell",
-    "topics": [],
-    "stars": 0,
-    "forks": 0,
-    "githubUrl": "https://github.com/Mandeep-vivu/PROJECT-RDBMS",
-    "demoUrl": "",
-    "updatedAt": "2022-10-10T18:03:52Z",
-    "readmeSummary": "This foundational project, part of the freeCodeCamp RDBMS curriculum, demonstrates early proficiency in relational database management systems and SQL. It highlights the ability to...",
-    "title": "Celestial Bodies Database",
-    "longDesc": "Designed a full PostgreSQL database schema for celestial bodies including galaxies, stars, planets, and moons. Used Bash scripting for data ingestion automation, complex SQL queries, and reporting.",
-    "tech": [
-      "PostgreSQL",
-      "Bash",
-      "SQL",
-      "Linux"
-    ],
-    "featured": true,
-    "gradient": "from-blue-600/20 to-indigo-600/20",
-    "icon": "DB",
-    "category": "Database Management",
-    "difficulty": "Beginner",
-    "skillsDemonstrated": [
-      "SQL",
-      "Shell Scripting",
-      "Relational Database Concepts",
-      "Basic Data Manipulation"
-    ],
-    "keyFeatures": [
-      "Database Setup (basic)",
-      "Basic SQL Querying",
-      "Shell Scripting for Database Interaction"
-    ],
-    "recruiterSummary": "This foundational project, part of the freeCodeCamp RDBMS curriculum, demonstrates early proficiency in relational database management systems and SQL. It highlights the ability to set up and interact with databases using shell scripting, establishing a solid base in data persistence and querying.",
-    "problemSolved": "It addresses the fundamental challenge of acquiring practical skills in relational database management and SQL for beginners.",
-    "industryUseCase": "Education",
-    "projectType": "Academic Project",
-    "aiRelated": false,
-    "technologies": [
-      "Shell Scripting",
-      "SQL",
-      "Relational Database Management System (RDBMS)"
-    ],
-    "learningOutcomes": [
-      "Understanding core RDBMS principles",
-      "Mastering basic SQL commands",
-      "Scripting database operations via shell",
-      "Setting up a local database environment"
-    ],
-    "resumeWorthiness": 10,
-    "complexityScore": 5
-  },
-  {
-    "id": "cpython",
-    "name": "cpython",
-    "description": "The Python programming language",
-    "language": "Python",
-    "topics": [],
-    "stars": 0,
-    "forks": 0,
-    "githubUrl": "https://github.com/Mandeep-vivu/cpython",
-    "demoUrl": "https://www.python.org/",
-    "updatedAt": "2022-10-07T21:39:39Z",
-    "readmeSummary": "A beginner-level web development project built with Python. Demonstrates practical implementation of Python. It solves the problem of \"The Python programming language\" and showcase...",
-    "title": "cpython",
-    "longDesc": "The Python programming language",
-    "tech": [],
-    "featured": false,
-    "gradient": "from-pink-600/20 to-rose-600/20",
-    "icon": "CODE",
-    "category": "Web Development",
-    "difficulty": "Beginner",
-    "skillsDemonstrated": [
-      "Python"
-    ],
-    "keyFeatures": [
-      "Code repository",
-      "Open-source development"
-    ],
-    "recruiterSummary": "A beginner-level web development project built with Python. Demonstrates practical implementation of Python. It solves the problem of \"The Python programming language\" and showcases software engineering depth.",
-    "problemSolved": "The Python programming language",
-    "industryUseCase": "General Purpose",
-    "projectType": "Production Application",
-    "aiRelated": false,
-    "technologies": [
-      "Python"
-    ],
-    "learningOutcomes": [
-      "Technical design patterns",
-      "Code documentation",
-      "Software version control"
-    ],
-    "resumeWorthiness": 45,
-    "complexityScore": 40
-  },
-  {
     "id": "Project-matrixxCal",
     "name": "Project-matrixxCal",
     "description": "",
@@ -488,56 +730,5 @@
     ],
     "resumeWorthiness": 35,
     "complexityScore": 25
-  },
-  {
-    "id": "github-slideshow",
-    "name": "github-slideshow",
-    "description": "A robot powered training repository :robot:",
-    "language": "Ruby",
-    "topics": [],
-    "stars": 0,
-    "forks": 0,
-    "githubUrl": "https://github.com/Mandeep-vivu/github-slideshow",
-    "demoUrl": "https://lab.github.com/githubtraining/introduction-to-github",
-    "updatedAt": "2021-01-25T12:20:23Z",
-    "readmeSummary": "This project delivers an automated, interactive GitHub Learning Lab module, leveraging a Ruby-powered bot to guide users through fundamental Git and GitHub concepts via issues and ...",
-    "title": "github-slideshow",
-    "longDesc": "A robot powered training repository :robot:",
-    "tech": [],
-    "featured": false,
-    "gradient": "from-violet-600/20 to-cyan-600/20",
-    "icon": "CODE",
-    "category": "Education",
-    "difficulty": "Beginner",
-    "skillsDemonstrated": [
-      "Automated learning workflows",
-      "GitHub platform integration",
-      "Instructional design",
-      "Web presentation"
-    ],
-    "keyFeatures": [
-      "Bot-guided interactive learning",
-      "Uses GitHub Issues and Pull Requests for instruction",
-      "Integration of reveal.js for content delivery"
-    ],
-    "recruiterSummary": "This project delivers an automated, interactive GitHub Learning Lab module, leveraging a Ruby-powered bot to guide users through fundamental Git and GitHub concepts via issues and pull requests. It demonstrates robust instructional design and platform automation to scale technical education efficiently, providing a structured learning environment.",
-    "problemSolved": "This project provides an interactive, guided, and automated platform to teach users fundamental Git and GitHub skills efficiently.",
-    "industryUseCase": "Education",
-    "projectType": "Training Platform",
-    "aiRelated": false,
-    "technologies": [
-      "Ruby",
-      "Git",
-      "GitHub API",
-      "reveal.js",
-      "Markdown"
-    ],
-    "learningOutcomes": [
-      "Understanding Git and GitHub fundamentals",
-      "Practical experience with GitHub UI elements (issues, pull requests)",
-      "Exposure to automated educational systems"
-    ],
-    "resumeWorthiness": 35,
-    "complexityScore": 40
   }
 ]

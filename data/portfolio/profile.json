@@ -10,6 +10,13 @@
     "Flutter Developer"
   ],
   "bio": "Pursuing M.E. in Artificial Intelligence & Machine Learning at Chandigarh University. I architect intelligent systems at the intersection of AI research and production engineering. From training neural networks to deploying cloud-native applications, I build things that matter.",
+  "birthDate": "1998-08-15",
+  "hobbies": [
+    "Exploring new technical tools, software, and AI platforms",
+    "Searching and reading about mysteries of the world",
+    "Reading about politics",
+    "Teaching fellow mates and guiding them"
+  ],
   "location": "Bhiwani, Haryana, India",
   "availableForWork": true,
   "resumeUrl": "https://www.canva.com/design/DAFlhUbanOo/view",

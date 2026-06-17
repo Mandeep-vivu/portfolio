@@ -1,22 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { 
+  Check,
+  ChevronDown,
   ExternalLink, 
   Star, 
   Search, 
   SlidersHorizontal, 
   BarChart3, 
   Brain, 
-  Award, 
   Gauge, 
-  Calendar, 
-  Code2, 
   Layers, 
   Sparkles,
-  HelpCircle
 } from "lucide-react";
 import { FiGithub as Github } from "react-icons/fi";
 
@@ -27,13 +25,168 @@ import GlowButton from "@/components/ui/GlowButton";
 import type { Project } from "@/lib/data";
 import { usePortfolio } from "@/components/providers/PortfolioProvider";
 
-// Badge colors for difficulty
-const DIFFICULTY_COLORS: Record<string, "green" | "cyan" | "purple" | "orange" | "pink"> = {
-  Beginner: "green",
-  Intermediate: "cyan",
-  Advanced: "purple",
-  Expert: "orange",
+type SelectOption = {
+  value: string;
+  label: string;
 };
+
+function FilterSelect({
+  ariaLabel,
+  value,
+  options,
+  onChange,
+  displayPrefix,
+  icon,
+}: {
+  ariaLabel: string;
+  value: string;
+  options: SelectOption[];
+  onChange: (value: string) => void;
+  displayPrefix?: string;
+  icon?: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
+
+  const selectedIndex = Math.max(
+    0,
+    options.findIndex((option) => option.value === value)
+  );
+  const selectedOption = options[selectedIndex] ?? options[0];
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
+
+  const chooseOption = (option: SelectOption) => {
+    onChange(option.value);
+    setOpen(false);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "Escape") {
+      setOpen(false);
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      if (open) {
+        const option = options[activeIndex] ?? selectedOption;
+        if (option) chooseOption(option);
+      } else {
+        setActiveIndex(selectedIndex);
+        setOpen(true);
+      }
+      return;
+    }
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!open) {
+        setActiveIndex(selectedIndex);
+        setOpen(true);
+        return;
+      }
+
+      const direction = event.key === "ArrowDown" ? 1 : -1;
+      setActiveIndex((current) => (current + direction + options.length) % options.length);
+    }
+  };
+
+  return (
+    <div ref={rootRef} className="relative z-30 w-full">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={listboxId}
+        aria-label={ariaLabel}
+        onClick={() => {
+          setActiveIndex(selectedIndex);
+          setOpen((current) => !current);
+        }}
+        onKeyDown={handleKeyDown}
+        className={`group flex h-9 w-full items-center justify-between gap-2 rounded-lg border px-2.5 text-left text-xs font-medium outline-none transition-all duration-300 ${
+          open
+            ? "border-primary/55 bg-primary/10 text-white shadow-[0_0_22px_rgba(99,102,241,0.18)]"
+            : "border-white/8 bg-white/[0.025] text-slate-300 hover:border-primary/35 hover:bg-white/[0.05] hover:text-white"
+        }`}
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          {icon && <span className="shrink-0 text-slate-500 group-hover:text-cyan-300">{icon}</span>}
+          <span className="truncate">
+            {displayPrefix}
+            {selectedOption?.label}
+          </span>
+        </span>
+        <ChevronDown
+          size={14}
+          className={`shrink-0 text-slate-500 transition duration-300 group-hover:text-cyan-300 ${
+            open ? "rotate-180 text-cyan-300" : ""
+          }`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 8, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="absolute left-0 top-full z-[80] w-full min-w-full overflow-hidden rounded-lg border border-primary/25 bg-[#06101f]/95 shadow-[0_18px_48px_rgba(0,0,0,0.55),0_0_28px_rgba(99,102,241,0.18)] backdrop-blur-2xl"
+          >
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
+            <div
+              id={listboxId}
+              role="listbox"
+              aria-label={ariaLabel}
+              className="max-h-64 overflow-y-auto p-1.5"
+            >
+              {options.map((option, index) => {
+                const selected = option.value === value;
+                const active = index === activeIndex;
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    role="option"
+                    aria-selected={selected}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onClick={() => chooseOption(option)}
+                    className={`flex min-h-9 w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-xs transition-all duration-200 ${
+                      selected
+                        ? "border border-primary/35 bg-primary/20 text-white shadow-[inset_0_0_18px_rgba(99,102,241,0.12)]"
+                        : active
+                          ? "bg-cyan-400/10 text-cyan-50"
+                          : "text-slate-300 hover:bg-white/[0.055] hover:text-white"
+                    }`}
+                  >
+                    <span className="min-w-0 truncate">{option.label}</span>
+                    {selected && <Check size={13} className="shrink-0 text-cyan-300" />}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function ProjectCard({
   project,
@@ -274,10 +427,19 @@ export default function Projects() {
   const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Dynamic filter list extraction from cached project objects
-  const categories = ["All", ...new Set(projects.map(p => p.category).filter(Boolean))];
+  const categories = ["All", ...new Set(projects.map(p => p.category).filter((category): category is string => Boolean(category)))];
   const difficulties = ["All", "Beginner", "Intermediate", "Advanced", "Expert"];
-  const projectTypes = ["All", ...new Set(projects.map(p => p.projectType).filter(Boolean))];
-  const industries = ["All", ...new Set(projects.map(p => p.industryUseCase).filter(Boolean))];
+  const projectTypes = ["All", ...new Set(projects.map(p => p.projectType).filter((type): type is string => Boolean(type)))];
+  const industries = ["All", ...new Set(projects.map(p => p.industryUseCase).filter((industry): industry is string => Boolean(industry)))];
+  const toOptions = (items: string[]) => items.map((item) => ({ value: item, label: item }));
+  const sortOptions: SelectOption[] = [
+    { value: "Most Impressive", label: "Most Impressive" },
+    { value: "Most Complex", label: "Most Complex" },
+    { value: "Most Recruiter Relevant", label: "Recruiter Index" },
+    { value: "Most Recent", label: "Most Recent" },
+    { value: "Most Starred", label: "Most Starred" },
+    { value: "Most AI Focused", label: "AI Focused" },
+  ];
 
   // Live Analytics calculations
   const totalProjects = projects.length;
@@ -292,16 +454,6 @@ export default function Projects() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 4)
     .map(([skill]) => skill);
-
-  const allLanguages = projects.map(p => p.language).filter(l => l && l !== "Unknown");
-  const langCounts = allLanguages.reduce((acc, lang) => {
-    acc[lang] = (acc[lang] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  const topLanguages = Object.entries(langCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([lang]) => lang);
 
   const projectsWithScores = projects.filter(p => p.complexityScore !== undefined && p.complexityScore > 0);
   const avgComplexity = projectsWithScores.length > 0
@@ -438,7 +590,7 @@ export default function Projects() {
         </AnimatePresence>
 
         {/* Dashboard Filters & Sort Module */}
-        <div className="mb-8 rounded-2xl border border-white/10 bg-white/[0.015] p-4 sm:p-5 backdrop-blur-md">
+        <div className="relative z-20 mb-8 rounded-2xl border border-white/10 bg-white/[0.015] p-4 sm:p-5 backdrop-blur-md">
           <div className="flex flex-col gap-4">
             
             {/* Search Bar & Sort Dropdown */}
@@ -453,21 +605,15 @@ export default function Projects() {
                   className="h-10 w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-650"
                 />
               </div>
-              <div className="flex items-center rounded-xl border border-white/8 bg-white/[0.02] px-3">
-                <SlidersHorizontal size={14} className="text-slate-550 mr-2 shrink-0" />
-                <select
+              <div className="relative z-40">
+                <FilterSelect
+                  ariaLabel="Sort projects"
                   value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  className="h-10 w-full bg-transparent text-xs text-slate-300 outline-none border-none cursor-pointer"
-                  style={{ colorScheme: "dark" }}
-                >
-                  <option value="Most Impressive">Sort: Most Impressive</option>
-                  <option value="Most Complex">Sort: Most Complex</option>
-                  <option value="Most Recruiter Relevant">Sort: Recruiter Index</option>
-                  <option value="Most Recent">Sort: Most Recent</option>
-                  <option value="Most Starred">Sort: Most Starred</option>
-                  <option value="Most AI Focused">Sort: AI Focused</option>
-                </select>
+                  options={sortOptions}
+                  onChange={setSort}
+                  displayPrefix="Sort: "
+                  icon={<SlidersHorizontal size={14} />}
+                />
               </div>
             </div>
 
@@ -475,50 +621,42 @@ export default function Projects() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="flex flex-col">
                 <label className="text-[0.6rem] uppercase font-bold tracking-wider text-slate-550 mb-1">Category</label>
-                <select
+                <FilterSelect
+                  ariaLabel="Filter by category"
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="h-9 rounded-lg border border-white/8 bg-white/[0.02] px-2.5 text-xs text-slate-350 outline-none cursor-pointer hover:border-white/20 transition"
-                  style={{ colorScheme: "dark" }}
-                >
-                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+                  options={toOptions(categories)}
+                  onChange={setCategory}
+                />
               </div>
               
               <div className="flex flex-col">
                 <label className="text-[0.6rem] uppercase font-bold tracking-wider text-slate-550 mb-1">Difficulty</label>
-                <select
+                <FilterSelect
+                  ariaLabel="Filter by difficulty"
                   value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value)}
-                  className="h-9 rounded-lg border border-white/8 bg-white/[0.02] px-2.5 text-xs text-slate-350 outline-none cursor-pointer hover:border-white/20 transition"
-                  style={{ colorScheme: "dark" }}
-                >
-                  {difficulties.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
+                  options={toOptions(difficulties)}
+                  onChange={setDifficulty}
+                />
               </div>
 
               <div className="flex flex-col">
                 <label className="text-[0.6rem] uppercase font-bold tracking-wider text-slate-550 mb-1">Scale/Type</label>
-                <select
+                <FilterSelect
+                  ariaLabel="Filter by scale or type"
                   value={projectType}
-                  onChange={(e) => setProjectType(e.target.value)}
-                  className="h-9 rounded-lg border border-white/8 bg-white/[0.02] px-2.5 text-xs text-slate-350 outline-none cursor-pointer hover:border-white/20 transition"
-                  style={{ colorScheme: "dark" }}
-                >
-                  {projectTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
+                  options={toOptions(projectTypes)}
+                  onChange={setProjectType}
+                />
               </div>
 
               <div className="flex flex-col">
                 <label className="text-[0.6rem] uppercase font-bold tracking-wider text-slate-550 mb-1">Industry</label>
-                <select
+                <FilterSelect
+                  ariaLabel="Filter by industry"
                   value={industry}
-                  onChange={(e) => setIndustry(e.target.value)}
-                  className="h-9 rounded-lg border border-white/8 bg-white/[0.02] px-2.5 text-xs text-slate-350 outline-none cursor-pointer hover:border-white/20 transition"
-                  style={{ colorScheme: "dark" }}
-                >
-                  {industries.map(i => <option key={i} value={i}>{i}</option>)}
-                </select>
+                  options={toOptions(industries)}
+                  onChange={setIndustry}
+                />
               </div>
             </div>
 

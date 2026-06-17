@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { FiGithub as Github, FiLinkedin as Linkedin } from "react-icons/fi";
 import { motion } from "framer-motion";
+import ProjectCard from "./ProjectCard";
 
 // Project metadata for enrichment (from Mandeep's portfolio data)
 interface ProjectData {
@@ -175,12 +176,15 @@ export function HighlightChips({ items }: { items: string[] }) {
   return (
     <div className="flex flex-wrap gap-1.5 mt-2">
       {items.map((item, index) => (
-        <span 
-          key={index} 
-          className="rounded-full border border-cyan-500/25 bg-cyan-950/20 px-2 py-0.5 text-[0.68rem] font-mono text-cyan-300 font-semibold shadow-inner"
+        <motion.span
+          key={index}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          className="rounded-full border border-cyan-500/25 bg-cyan-950/20 px-2 py-0.5 text-[0.68rem] font-mono text-cyan-300 font-semibold shadow-inner cursor-default"
         >
           {item.trim()}
-        </span>
+        </motion.span>
       ))}
     </div>
   );
@@ -692,7 +696,7 @@ function ResponseAnalyzerBlock({ text }: { text: string }) {
         return (
           <div className="w-full">
             <MarkdownSection text={trimmedText} />
-            <ProjectInsightPanel project={project} />
+            <ProjectCard project={project} />
           </div>
         );
       }

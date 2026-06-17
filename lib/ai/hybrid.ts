@@ -9,6 +9,8 @@ export interface HybridRetrievalContext {
   matchedProjects: any[];
   matchedSkills: any[];
   matchedExperience: any[];
+  matchedCertifications: any[];
+  matchedAchievements: any[];
   semanticMatches: any[];
   confidence: number;
 }
@@ -95,6 +97,8 @@ export async function retrieveHybridContext(
     matchedProjects: [],
     matchedSkills: [],
     matchedExperience: [],
+    matchedCertifications: [],
+    matchedAchievements: [],
     semanticMatches: [],
     confidence: topResults.length > 0 ? topResults[0].score : 0,
   };
@@ -130,9 +134,17 @@ export async function retrieveHybridContext(
       const skill = portfolio.skills.find(s => `skill-${s.name.toLowerCase().replace(/\\W+/g, "-")}` === result.id);
       if (skill) context.matchedSkills.push(skill);
       else context.semanticMatches.push({ title: result.title, content: result.content }); // for "skills-summary"
-    } else if (result.category === "experience" || result.category === "leadership") {
+    } else if (result.category === "experience") {
       const exp = portfolio.experience.find(e => e.id === result.id);
       if (exp) context.matchedExperience.push(exp);
+    } else if (result.category === "certification") {
+      const cert = portfolio.certifications.find(c => c.id === result.id);
+      if (cert) context.matchedCertifications.push(cert);
+      else context.semanticMatches.push({ title: result.title, content: result.content });
+    } else if (result.category === "award" || result.category === "leadership" || result.category === "academic") {
+      const ach = portfolio.certifications.find(c => c.id === result.id);
+      if (ach) context.matchedAchievements.push(ach);
+      else context.semanticMatches.push({ title: result.title, content: result.content });
     } else {
       context.semanticMatches.push({ title: result.title, content: result.content });
     }

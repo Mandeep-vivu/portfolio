@@ -8,6 +8,8 @@ export const profileSchema = z.object({
   tagline: z.string().trim().min(2).max(160),
   roles: z.array(z.string().trim().min(1).max(80)).max(12),
   bio: z.string().trim().min(20).max(2000),
+  birthDate: z.string().trim().max(20).optional().default(""),
+  hobbies: z.array(z.string().trim().min(1).max(160)).max(20).optional().default([]),
   location: z.string().trim().min(2).max(120),
   availableForWork: z.boolean(),
   resumeUrl: urlOrEmpty,

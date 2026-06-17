@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { generateObject } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 
 // Define the paths
@@ -51,7 +51,8 @@ interface Project {
 
 const GITHUB_USERNAME = process.env.GITHUB_USERNAME || 'Mandeep-vivu';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
 
 // Define Zod schema for structured output
 const projectIntelligenceSchema = z.object({
@@ -69,6 +70,23 @@ const projectIntelligenceSchema = z.object({
   resumeWorthiness: z.number().min(1).max(100).describe("Recruiter impact score from 1-100"),
   complexityScore: z.number().min(1).max(100).describe("Architecture/engineering complexity score from 1-100"),
 });
+
+/**
+ * Get DeepSeek model instance for GitHub repository analysis
+ * DeepSeek excels at code understanding and technical analysis
+ */
+function getDeepSeekModel() {
+  if (!DEEPSEEK_API_KEY) {
+    return null;
+  }
+
+  const deepseek = createOpenAI({
+    apiKey: DEEPSEEK_API_KEY,
+    baseURL: "https://api.deepseek.com",
+  });
+
+  return deepseek(DEEPSEEK_MODEL);
+}
 
 async function fetchGitHubRepos() {
   const url = `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated`;
@@ -106,6 +124,7 @@ async function fetchReadme(repoName: string): Promise<string> {
 
 /**
  * Robust rule-based fallback metadata generator if AI analysis fails
+ * Uses observable repository signals to estimate quality metrics
  */
 function generateFallbackIntelligence(repo: any, readmeContent: string): z.infer<typeof projectIntelligenceSchema> {
   const readmeLower = readmeContent.toLowerCase();
@@ -138,36 +157,79 @@ function generateFallbackIntelligence(repo: any, readmeContent: string): z.infer
     category = "Automation";
   }
 
-  // 3. Difficulty Classification
+  // 3. Difficulty Classification (based on repo complexity signals)
   let difficulty: "Beginner" | "Intermediate" | "Advanced" | "Expert" = "Intermediate";
-  const size = repo.size || 0;
-  const complexityFactor = (repo.topics?.length || 0) * 2 + (repo.stargazers_count || 0) + (readmeContent.length / 500);
-  if (complexityFactor < 5) difficulty = "Beginner";
-  else if (complexityFactor > 40) difficulty = "Expert";
-  else if (complexityFactor > 20) difficulty = "Advanced";
+  const repoSize = repo.size || 0;
+  const starCount = repo.stargazers_count || 0;
+  const forkCount = repo.forks_count || 0;
+  const topicCount = repo.topics?.length || 0;
+  const readmeLength = readmeContent.length;
+  
+  // Complexity factor calculation
+  const complexityFactors = 
+    (topicCount * 3) +           // Topics indicate specialized focus
+    (starCount / 5) +            // Stars indicate adoption/quality
+    (forkCount * 2) +            // Forks indicate community interest
+    (readmeLength / 2000) +      // Longer README suggests more features
+    (repoSize / 500);            // Size reflects code volume
+
+  if (complexityFactors < 8) difficulty = "Beginner";
+  else if (complexityFactors > 50) difficulty = "Expert";
+  else if (complexityFactors > 25) difficulty = "Advanced";
 
   // 4. Skills extraction
-  const possibleSkills = ["Python", "Java", "C++", "JavaScript", "TypeScript", "HTML", "CSS", "React", "Next.js", "Flutter", "Dart", "SQL", "PostgreSQL", "MongoDB", "Bash", "Shell", "Docker", "AWS", "TensorFlow", "PyTorch", "Scikit-learn", "OpenCV", "MediaPipe", "Streamlit", "Linux", "REST API", "Socket.IO"];
+  const possibleSkills = [
+    "Python", "Java", "C++", "C#", "JavaScript", "TypeScript", "Go", "Rust", 
+    "HTML", "CSS", "React", "Vue.js", "Angular", "Next.js", "Svelte",
+    "Flutter", "Dart", "Swift", "Kotlin", "Android", "iOS",
+    "SQL", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Firebase",
+    "Bash", "Shell", "PowerShell", "Docker", "Kubernetes", "AWS", "GCP", "Azure",
+    "TensorFlow", "PyTorch", "Scikit-learn", "OpenCV", "MediaPipe", "Hugging Face",
+    "FastAPI", "Flask", "Django", "Spring", "Express.js", "Node.js",
+    "Streamlit", "Jupyter", "Linux", "Git", "REST API", "GraphQL", "Socket.IO"
+  ];
   const skillsDemonstrated = possibleSkills.filter(skill => combinedText.includes(skill.toLowerCase()));
   if (repo.language && !skillsDemonstrated.includes(repo.language)) {
     skillsDemonstrated.unshift(repo.language);
   }
 
-  // 5. Complexity Score (1-100)
-  let complexityScore = 40;
-  if (difficulty === "Beginner") complexityScore = 25 + Math.min(15, size / 100);
-  else if (difficulty === "Intermediate") complexityScore = 45 + Math.min(15, size / 100);
-  else if (difficulty === "Advanced") complexityScore = 65 + Math.min(15, size / 100);
-  else if (difficulty === "Expert") complexityScore = 85 + Math.min(10, size / 100);
+  // 5. Complexity Score (1-100) - More nuanced calculation
+  let complexityScore = 45;
+  
+  if (difficulty === "Beginner") {
+    complexityScore = 25 + Math.min(15, repoSize / 100) + (starCount * 0.5);
+  } else if (difficulty === "Intermediate") {
+    complexityScore = 48 + Math.min(12, repoSize / 200) + (starCount * 0.3) + (topicCount * 2);
+  } else if (difficulty === "Advanced") {
+    complexityScore = 68 + Math.min(10, repoSize / 300) + (starCount * 0.2) + (topicCount * 1.5);
+  } else if (difficulty === "Expert") {
+    complexityScore = 82 + Math.min(8, repoSize / 500) + (starCount * 0.1) + (topicCount * 1);
+  }
+  
   complexityScore = Math.round(Math.min(99, complexityScore));
 
-  // 6. Resume Worthiness (1-100)
+  // 6. Resume Worthiness (1-100) - What would a recruiter care about
   let resumeWorthiness = 35;
-  if (repo.stargazers_count > 10) resumeWorthiness += 20;
-  if (repo.forks_count > 5) resumeWorthiness += 10;
-  if (difficulty === "Advanced") resumeWorthiness += 20;
-  if (difficulty === "Expert") resumeWorthiness += 35;
-  if (repo.homepage) resumeWorthiness += 10;
+  
+  // Base on engagement metrics
+  if (starCount >= 100) resumeWorthiness += 35;
+  else if (starCount >= 50) resumeWorthiness += 25;
+  else if (starCount >= 10) resumeWorthiness += 15;
+  else if (starCount > 0) resumeWorthiness += 5;
+
+  if (forkCount >= 20) resumeWorthiness += 20;
+  else if (forkCount >= 5) resumeWorthiness += 10;
+
+  // Difficulty bonus (more complex = more impressive)
+  if (difficulty === "Advanced") resumeWorthiness += 15;
+  else if (difficulty === "Expert") resumeWorthiness += 28;
+
+  // Production app indicator
+  if (repo.homepage) resumeWorthiness += 12;
+
+  // AI/ML projects get boost
+  if (aiRelated) resumeWorthiness += 10;
+
   resumeWorthiness = Math.round(Math.min(98, resumeWorthiness));
 
   // 7. Industry Use Case
@@ -176,66 +238,94 @@ function generateFallbackIntelligence(repo: any, readmeContent: string): z.infer
   else if (combinedText.includes("finance") || combinedText.includes("stock") || combinedText.includes("trade") || combinedText.includes("bank")) industryUseCase = "Finance";
   else if (combinedText.includes("learn") || combinedText.includes("school") || combinedText.includes("university") || combinedText.includes("student") || combinedText.includes("coursera")) industryUseCase = "Education";
   else if (combinedText.includes("fest") || combinedText.includes("registration") || combinedText.includes("candidate") || combinedText.includes("recruitment") || combinedText.includes("resume")) industryUseCase = "Recruitment";
+  else if (combinedText.includes("retail") || combinedText.includes("shop") || combinedText.includes("store") || combinedText.includes("ecommerce")) industryUseCase = "Retail";
+  else if (combinedText.includes("logistic") || combinedText.includes("delivery") || combinedText.includes("supply")) industryUseCase = "Logistics";
 
   // 8. Project Type
   let projectType = "Personal Project";
   if (combinedText.includes("academic") || combinedText.includes("college") || combinedText.includes("university")) projectType = "Academic Project";
   else if (combinedText.includes("hackathon") || combinedText.includes("fest")) projectType = "Hackathon Project";
   else if (combinedText.includes("research") || combinedText.includes("paper")) projectType = "Research Project";
-  else if (repo.homepage) projectType = "Production Application";
+  else if (repo.homepage || starCount > 50) projectType = "Production Application";
+  else if (starCount > 5) projectType = "Open Source Contribution";
 
   // 9. Key Features & Problem Solved
-  const keyFeatures = repo.topics && repo.topics.length > 0 ? repo.topics : ["Code repository", "Open-source development"];
-  const problemSolved = repo.description || "Provides open-source utility and code examples.";
+  const keyFeatures = repo.topics && repo.topics.length > 0 ? repo.topics : ["Code repository", "Software implementation"];
+  const problemSolved = repo.description || "Provides implementation and reference code examples.";
 
-  // 10. Recruiter Summary
-  const recruiterSummary = `A ${difficulty.toLowerCase()}-level ${category.toLowerCase()} project built with ${repo.language || "core technologies"}. Demonstrates practical implementation of ${skillsDemonstrated.slice(0, 3).join(", ")}. It solves the problem of "${problemSolved}" and showcases software engineering depth.`;
+  // 10. Recruiter Summary - Improved
+  const topSkills = skillsDemonstrated.slice(0, 3).join(", ");
+  const recruiterSummary = `${difficulty}-level ${category} project demonstrating solid engineering with ${topSkills}. ${starCount > 0 ? `Achieved ${starCount} stars showing community interest. ` : ""}${repo.homepage ? "Deployed to production. " : ""}Solves the problem of "${problemSolved.substring(0, 80)}..." showcasing ${difficulty === "Expert" ? "advanced" : difficulty === "Advanced" ? "strong" : "solid"} technical capabilities.`;
 
   return {
     category,
     difficulty,
     skillsDemonstrated,
     keyFeatures,
-    recruiterSummary,
+    recruiterSummary: recruiterSummary.substring(0, 500),
     problemSolved,
     industryUseCase,
     projectType,
     aiRelated,
     technologies: skillsDemonstrated,
-    learningOutcomes: ["Technical design patterns", "Code documentation", "Software version control"],
+    learningOutcomes: ["Technical implementation", "Software architecture", "Best practices"],
     resumeWorthiness,
     complexityScore
   };
 }
 
 async function analyzeProjectIntelligence(repo: any, readmeContent: string): Promise<z.infer<typeof projectIntelligenceSchema>> {
-  if (!GEMINI_API_KEY || !readmeContent || readmeContent.length < 10) {
+  if (!DEEPSEEK_API_KEY || !readmeContent || readmeContent.length < 10) {
     console.log(`Using rule-based fallback analysis for ${repo.name}...`);
     return generateFallbackIntelligence(repo, readmeContent);
   }
 
   try {
-    const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY });
-    const model = google("gemini-2.5-flash");
+    const model = getDeepSeekModel();
+    if (!model) {
+      console.log(`DeepSeek not configured for ${repo.name}. Using rule-based fallback...`);
+      return generateFallbackIntelligence(repo, readmeContent);
+    }
 
-    console.log(`Running AI Portfolio analysis for ${repo.name}...`);
+    console.log(`Running DeepSeek analysis for ${repo.name}...`);
+    const systemPrompt = `You are a Senior Software Engineer, Technical Architect, and Hiring Manager with 20+ years of experience evaluating code repositories.
+
+Your task is to analyze GitHub repositories and generate recruiter-focused intelligence based on technical merit, complexity, and business value.
+
+Guidelines:
+- Analyze only what you can see in the repository metadata, topics, README, and language
+- Do NOT hallucinate technologies or features not mentioned
+- Focus on technical depth, architecture quality, and demonstrated skills
+- Evaluate complexity realistically based on repo signals (size, stars, topics, language)
+- Generate scores (complexityScore, resumeWorthiness) using observable signals, not guessing
+
+Be precise, factual, and focused on what an experienced technical recruiter would value.`;
+
     const result = await generateObject({
       model,
+      system: systemPrompt,
       schema: projectIntelligenceSchema,
-      prompt: `Analyze the following GitHub repository metadata and README file:
+      prompt: `Analyze the following GitHub repository and generate structured intelligence:
+
 Repository Name: ${repo.name}
 Description: ${repo.description || "None"}
-Languages/Topics: Primary: ${repo.language || "None"}, Topics: ${repo.topics?.join(", ") || "None"}
+Primary Language: ${repo.language || "None"}
+Topics: ${repo.topics?.join(", ") || "None"}
+Stars: ${repo.stargazers_count || 0}
+Forks: ${repo.forks_count || 0}
+Repository Size: ${repo.size || 0} KB
+Created: ${repo.created_at || "Unknown"}
+Updated: ${repo.updated_at || "Unknown"}
 
-README:
-${readmeContent.substring(0, 12000)}
+README Content:
+${readmeContent.substring(0, 15000)}
 
-Perform a structured evaluation and populate all fields.`
+Generate complete structured intelligence for all fields. Be specific and factual.`
     });
 
     return result.object;
   } catch (error) {
-    console.warn(`Gemini intelligence analysis failed for ${repo.name}. Falling back to rule-based generation.`, error);
+    console.warn(`DeepSeek analysis failed for ${repo.name}. Falling back to rule-based generation.`, error);
     return generateFallbackIntelligence(repo, readmeContent);
   }
 }

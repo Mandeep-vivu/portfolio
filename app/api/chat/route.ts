@@ -15,6 +15,63 @@ function streamEvent(value: unknown) {
   return `${JSON.stringify(value)}\n`;
 }
 
+function calculateAge(birthDate: string, asOf = new Date()) {
+  const born = new Date(`${birthDate}T00:00:00`);
+  if (Number.isNaN(born.getTime())) return null;
+
+  let age = asOf.getFullYear() - born.getFullYear();
+  const hadBirthdayThisYear =
+    asOf.getMonth() > born.getMonth() ||
+    (asOf.getMonth() === born.getMonth() && asOf.getDate() >= born.getDate());
+
+  if (!hadBirthdayThisYear) age -= 1;
+  return age;
+}
+
+function formatBirthDate(birthDate: string) {
+  const born = new Date(`${birthDate}T00:00:00`);
+  if (Number.isNaN(born.getTime())) return birthDate;
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(born);
+}
+
+function buildPortfolioBlocks(hybridCtx: any) {
+  const blocks: any[] = [];
+
+  if (
+    hybridCtx.matchedProjects.length > 0 ||
+    hybridCtx.semanticMatches.length > 0 ||
+    hybridCtx.matchedSkills.length > 0 ||
+    hybridCtx.matchedExperience.length > 0
+  ) {
+    let text = "Based on Mandeep's portfolio:\n\n";
+
+    if (hybridCtx.semanticMatches.length > 0) {
+      text += hybridCtx.semanticMatches.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
+    }
+    if (hybridCtx.matchedSkills.length > 0) {
+      text += `\n\nSkills: ${hybridCtx.matchedSkills.map((s: any) => s.name).join(", ")}`;
+    }
+    if (hybridCtx.matchedExperience.length > 0) {
+      text += `\n\nExperience:\n${hybridCtx.matchedExperience.map((e: any) => `- **${e.title}** at ${e.org}`).join("\n")}`;
+    }
+
+    if (text !== "Based on Mandeep's portfolio:\n\n") {
+      blocks.push({ type: "text", content: text.trim() });
+    }
+
+    if (hybridCtx.matchedProjects.length > 0) {
+      blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
+    }
+  }
+
+  return blocks;
+}
+
 export async function POST(request: Request) {
   const identity = requestIdentity(request);
   const limit = rateLimit(`chat:${identity}`, 20, 60_000);
@@ -81,7 +138,35 @@ export async function POST(request: Request) {
                 blocks.push({ type: "text", content: "Resume not found" });
              }
           } 
-          else if (/contact|email|github|linkedin|phone number/.test(lastMessage)) {
+          else if (/(age|how old|date of birth|birth date|dob|born|birthday)/.test(lastMessage)) {
+             intentStr = "PROFILE_AGE_REQUEST";
+             metrics.usedTool = true;
+             const portfolio = await getPortfolio();
+             const age = portfolio.profile.birthDate ? calculateAge(portfolio.profile.birthDate) : null;
+             if (portfolio.profile.birthDate && age !== null) {
+               blocks.push({
+                 type: "text",
+                 content: `Mandeep was born on ${formatBirthDate(portfolio.profile.birthDate)}. He is currently ${age} years old.`,
+               });
+             } else {
+               blocks.push({ type: "text", content: "Mandeep's date of birth is not available in the portfolio data." });
+             }
+          }
+          else if (/(hobb(y|ies)|interest|interests|free time|outside work|what does he like|likes to do)/.test(lastMessage)) {
+             intentStr = "PROFILE_HOBBIES_REQUEST";
+             metrics.usedTool = true;
+             const portfolio = await getPortfolio();
+             const hobbies = portfolio.profile.hobbies ?? [];
+             if (hobbies.length > 0) {
+               blocks.push({
+                 type: "text",
+                 content: `Mandeep's hobbies and interests include ${hobbies.map((hobby) => hobby.toLowerCase()).join(", ")}.`,
+               });
+             } else {
+               blocks.push({ type: "text", content: "Mandeep's hobbies are not available in the portfolio data." });
+             }
+          }
+          else if (/(contact|email|github|linkedin|\bphone\b|phone number|mobile|mobile number|contact number|whatsapp|reach|connect|how can i call|call him|call mandeep)/.test(lastMessage)) {
              intentStr = "CONTACT_REQUEST";
              metrics.usedTool = true;
              const portfolio = await getPortfolio();
@@ -102,6 +187,34 @@ export async function POST(request: Request) {
                blocks.push({ type: "schedule", url: calendlyUrl });
              } else {
                blocks.push({ type: "error", content: "Scheduling is not configured yet." });
+             }
+          }
+          else if (/(certif|certificate|credentials|credential|certifications)/.test(lastMessage)) {
+             intentStr = "CERTIFICATION_REQUEST";
+             metrics.usedTool = true;
+             const portfolio = await getPortfolio();
+             const certifications = portfolio.certifications.filter((entry) => entry.type === "certification");
+             if (certifications.length > 0) {
+               blocks.push({
+                 type: "text",
+                 content: `Mandeep has ${certifications.length} certifications:\n\n${certifications.map((entry) => `- ${entry.title}${entry.description ? `: ${entry.description}` : ""}`).join("\n")}`,
+               });
+             } else {
+               blocks.push({ type: "text", content: "No certifications were found in the portfolio." });
+             }
+          }
+          else if (/(achievement|achievements|award|awards|leadership|academic)/.test(lastMessage)) {
+             intentStr = "ACHIEVEMENT_REQUEST";
+             metrics.usedTool = true;
+             const portfolio = await getPortfolio();
+             const achievements = portfolio.certifications.filter((entry) => entry.type !== "certification");
+             if (achievements.length > 0) {
+               blocks.push({
+                 type: "text",
+                 content: `Mandeep's recognition includes ${achievements.length} achievements and honors:\n\n${achievements.map((entry) => `- ${entry.title}${entry.description ? `: ${entry.description}` : ""}`).join("\n")}`,
+               });
+             } else {
+               blocks.push({ type: "text", content: "No achievement records were found in the portfolio." });
              }
           }
           else if (/what are his skills|what is his education|what certifications does he have|tell me about his experience/.test(lastMessage)) {
@@ -180,7 +293,6 @@ export async function POST(request: Request) {
                       system: systemPrompt,
                       messages: aiCallMessages as any[],
                       schema: singleTurnResponseSchema,
-                      mode: 'json',
                     });
                   } catch (groqErr: any) {
                     console.error("Groq Fallback Error:", groqErr);

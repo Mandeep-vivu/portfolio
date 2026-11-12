@@ -2,16 +2,15 @@
 
 import { useEffect } from "react";
 import { CalendarDays, ExternalLink } from "lucide-react";
+import { safeHref } from "@/lib/url";
 
-function safeHref(href?: string) {
-  if (!href) return "";
-  try {
-    const url = new URL(href, window.location.origin);
-    return ["http:", "https:"].includes(url.protocol) ? href : "";
-  } catch {
-    return "";
+declare global {
+  interface Window {
+    /** Injected by the Calendly widget script (components/CalendlyBadge.tsx). */
+    Calendly?: { initPopupWidget: (options: { url: string }) => void };
   }
 }
+
 
 const isMessagePopped = (messageId: string): boolean => {
   if (typeof window === "undefined") return true;
@@ -46,16 +45,14 @@ const markMessageAsPopped = (messageId: string) => {
 };
 
 export default function SchedulingCard({ url, messageId }: { url: string; messageId?: string }) {
-  const safeUrl = safeHref(url);
+  const safeUrl = safeHref(url, { webOnly: true });
 
   const handleOpenPopup = (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     if (!safeUrl) return;
 
-    // @ts-expect-error Calendly is loaded externally
     if (window.Calendly) {
-      // @ts-expect-error Calendly is loaded externally
-      window.Calendly.initPopupWidget({ url: safeUrl });
+        window.Calendly.initPopupWidget({ url: safeUrl });
     } else {
       window.open(safeUrl, "_blank", "noopener,noreferrer");
     }
@@ -71,10 +68,8 @@ export default function SchedulingCard({ url, messageId }: { url: string; messag
 
     let attempts = 0;
     const interval = setInterval(() => {
-      // @ts-expect-error Calendly is loaded externally
-      if (window.Calendly) {
-        // @ts-expect-error Calendly is loaded externally
-        window.Calendly.initPopupWidget({ url: safeUrl });
+        if (window.Calendly) {
+            window.Calendly.initPopupWidget({ url: safeUrl });
         if (messageId) {
           markMessageAsPopped(messageId);
         }

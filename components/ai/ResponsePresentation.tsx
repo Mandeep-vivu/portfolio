@@ -1,131 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Briefcase, 
-  GraduationCap, 
-  Calendar, 
-  Trophy, 
-  ExternalLink, 
-  User, 
-  CheckCircle2, 
-  Mail, 
-  Phone, 
+import {
+  CheckCircle2,
   Sparkles,
-  Info,
   ChevronDown,
   ChevronUp,
-  Cpu,
-  Bookmark,
-  Award
 } from "lucide-react";
-import { FiGithub as Github, FiLinkedin as Linkedin } from "react-icons/fi";
 import { motion } from "framer-motion";
-import ProjectCard from "./ProjectCard";
-
-// Project metadata for enrichment (from Mandeep's portfolio data)
-interface ProjectData {
-  id: string;
-  title: string;
-  difficulty: "Intermediate" | "Advanced";
-  category: string;
-  technologies: string[];
-  problemSolved: string;
-  recruiterSummary: string;
-  complexityScore: string;
-  skillsDemonstrated: string[];
-  industryUseCase: string;
-  resumeWorthiness: "High" | "Very High" | "Medium";
-  github?: string;
-  demo?: string;
-}
-
-const PORTFOLIO_PROJECTS: Record<string, ProjectData> = {
-  "covid-ml": {
-    id: "covid-ml",
-    title: "Covid-19 ML Predictor",
-    difficulty: "Advanced",
-    category: "AI / Machine Learning",
-    technologies: ["Python", "Scikit-learn", "Pandas", "NumPy", "Matplotlib"],
-    problemSolved: "Predicting COVID-19 case trends using multi-variate regression and time-series analysis.",
-    recruiterSummary: "Demonstrates strong foundation in end-to-end ML pipeline creation, feature engineering, cross-validation, and statistical analysis.",
-    complexityScore: "8/10",
-    skillsDemonstrated: ["Data Preprocessing", "Predictive Modeling", "Feature Engineering", "Data Visualization"],
-    industryUseCase: "Public health forecasting, predictive analytics, epidemiological modeling.",
-    resumeWorthiness: "High",
-    github: "https://github.com/Mandeep-vivu"
-  },
-  "celestial-db": {
-    id: "celestial-db",
-    title: "Celestial Bodies Database",
-    difficulty: "Intermediate",
-    category: "Relational Databases",
-    technologies: ["PostgreSQL", "Bash", "SQL", "Linux"],
-    problemSolved: "Designing relational database schemas for complex astronomical data models with automated ingestion scripts.",
-    recruiterSummary: "Showcases expert command of schema design, database constraints, automated ETL pipelines using shell scripting, and query formulation.",
-    complexityScore: "6.5/10",
-    skillsDemonstrated: ["Database Normalization", "ETL Automation", "Shell Scripting", "Relational Mapping"],
-    industryUseCase: "Data warehousing, relational storage design, data pipeline ingestion.",
-    resumeWorthiness: "Medium",
-    github: "https://github.com/Mandeep-vivu/PROJECT-RDBMS"
-  },
-  "technozarre-app": {
-    id: "technozarre-app",
-    title: "Technozarre App",
-    difficulty: "Advanced",
-    category: "Mobile App Development",
-    technologies: ["Flutter", "Dart", "Socket.IO", "REST API"],
-    problemSolved: "Real-time registration, check-ins, and event scheduling system for a college technical fest.",
-    recruiterSummary: "Demonstrates lead architecture capabilities, real-time synchronization, state management, and production-grade cross-platform deployment.",
-    complexityScore: "8.5/10",
-    skillsDemonstrated: ["Mobile Architecture", "State Management", "Websockets Synchronization", "REST Integration"],
-    industryUseCase: "Real-time ticketing systems, collaborative booking platforms, event management portals.",
-    resumeWorthiness: "High",
-    github: "https://github.com/Mandeep-vivu/technozarreap"
-  },
-  "technozarre-web": {
-    id: "technozarre-web",
-    title: "Technozarre Website",
-    difficulty: "Intermediate",
-    category: "Frontend Development",
-    technologies: ["HTML", "CSS", "JavaScript", "Responsive Design"],
-    problemSolved: "Official web portal for college technical fest registrations, featuring dynamic event search and responsive timelines.",
-    recruiterSummary: "Highlights core web skills including DOM manipulation, responsive layouts, interactive scheduling components, and high web accessibility standards.",
-    complexityScore: "5.5/10",
-    skillsDemonstrated: ["UI/UX Integration", "Interactive DOM", "Responsive Web Design"],
-    industryUseCase: "Event marketing catalogs, digital landing pages, product launch websites.",
-    resumeWorthiness: "Medium",
-    github: "https://github.com/Mandeep-vivu/technozarre_webp"
-  },
-  "flutter-chat": {
-    id: "flutter-chat",
-    title: "Flutter Chat App",
-    difficulty: "Intermediate",
-    category: "Mobile App Development",
-    technologies: ["Flutter", "Dart", "Socket.IO", "REST API"],
-    problemSolved: "Real-time bi-directional messaging platform with user authentication and status tracking.",
-    recruiterSummary: "Demonstrates robust real-time networking setup, async event queues, user authentication integration, and custom message rendering.",
-    complexityScore: "7/10",
-    skillsDemonstrated: ["Real-time Networking", "Authentication Flows", "Asynchronous Events"],
-    industryUseCase: "Customer support desks, live collaboration tools, localized secure messaging apps.",
-    resumeWorthiness: "High",
-    github: "https://github.com/Mandeep-vivu"
-  },
-  "fitness-ai": {
-    id: "fitness-ai",
-    title: "AI Fitness Trainer",
-    difficulty: "Advanced",
-    category: "Computer Vision / AI",
-    technologies: ["Python", "OpenCV", "MediaPipe", "Streamlit"],
-    problemSolved: "Real-time human pose tracking, exercise posture analysis, and automatic repetition counting with audio-visual coaching feedback.",
-    recruiterSummary: "High-tier portfolio project showing edge-inference execution, pose estimation heuristics, frame processing optimization, and interactive dashboards.",
-    complexityScore: "9/10",
-    skillsDemonstrated: ["Computer Vision", "Pose Estimation Model Inference", "Interactive Dashboards", "Mathematical Angle Analysis"],
-    industryUseCase: "Digital health and wellness programs, sports analytics, human activity recognition systems.",
-    resumeWorthiness: "Very High",
-    github: "https://github.com/Mandeep-vivu"
-  }
-};
+import ContactCard from "./ContactCard";
+import { usePortfolio } from "@/components/providers/PortfolioProvider";
+import { safeHref } from "@/lib/url";
 
 // ---------------------------------------------------------------------------
 // Inline Markdown Formatter Helper
@@ -151,8 +36,10 @@ function parseMarkdownInline(text: string): React.ReactNode[] {
     }
     const linkMatch = token.match(/\[(.*?)\]\((.*?)\)/);
     if (linkMatch) {
-      const href = linkMatch[2];
+      const href = safeHref(linkMatch[2]?.trim());
       const linkText = linkMatch[1];
+      // Model output is untrusted: links with unsafe protocols render as text.
+      if (!href) return linkText;
       return (
         <a
           key={index}
@@ -350,110 +237,6 @@ export function ExpandableSection({ children, title, maxLength = 350 }: { childr
 }
 
 // ---------------------------------------------------------------------------
-// 7 & 10. Project Insight Panel & Recruiter View
-// ---------------------------------------------------------------------------
-export function ProjectInsightPanel({ project }: { project: ProjectData }) {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="my-4 overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-br from-black/40 to-[#0e172e]/40 p-4.5 shadow-xl backdrop-blur-md"
-    >
-      {/* Header */}
-      <div className="flex justify-between items-start gap-4">
-        <div>
-          <span className="rounded-full bg-primary/20 border border-primary/30 px-2.5 py-0.5 text-[0.62rem] font-bold text-indigo-300 uppercase tracking-widest">
-            {project.category}
-          </span>
-          <h4 className="text-base font-extrabold text-white mt-1.5 flex items-center gap-2">
-            {project.title}
-          </h4>
-        </div>
-        <div className="text-right">
-          <span className={`inline-block rounded-md border text-[0.62rem] font-extrabold px-2 py-0.5 uppercase tracking-wider ${
-            project.difficulty === "Advanced" 
-              ? "border-red-500/20 bg-red-950/20 text-red-400"
-              : "border-yellow-500/20 bg-yellow-950/20 text-yellow-400"
-          }`}>
-            {project.difficulty}
-          </span>
-        </div>
-      </div>
-
-      {/* Tech Chips */}
-      <HighlightChips items={project.technologies} />
-
-      {/* Structured Details Grid */}
-      <div className="grid gap-3.5 mt-4 border-t border-white/5 pt-3.5 text-xs">
-        <div>
-          <span className="block font-bold text-cyan-300 text-[0.68rem] uppercase tracking-wider">Problem Solved</span>
-          <p className="mt-1 text-slate-300 leading-relaxed">{project.problemSolved}</p>
-        </div>
-
-        <div>
-          <span className="block font-bold text-indigo-300 text-[0.68rem] uppercase tracking-wider">Recruiter Summary</span>
-          <p className="mt-1 text-slate-300 leading-relaxed italic">{project.recruiterSummary}</p>
-        </div>
-      </div>
-
-      {/* Recruiter Insights Divider & Title */}
-      <div className="mt-4 border-t border-white/5 pt-3.5">
-        <div className="flex items-center gap-1.5 text-slate-400 mb-2.5">
-          <Bookmark size={14} className="text-indigo-400" />
-          <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">Recruiter Insights View</span>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          <div className="rounded-lg bg-white/[0.02] border border-white/5 p-2.5">
-            <span className="block text-[0.6rem] uppercase text-slate-400 font-semibold tracking-wider">Skills Demonstrated</span>
-            <ul className="mt-1.5 space-y-1 text-slate-300">
-              {project.skillsDemonstrated.map((skill, si) => (
-                <li key={si} className="flex items-center gap-1">
-                  <CheckCircle2 size={10} className="text-emerald-400 shrink-0" />
-                  <span className="text-[0.68rem] truncate">{skill}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="rounded-lg bg-white/[0.02] border border-white/5 p-2.5 flex flex-col justify-between">
-            <div>
-              <span className="block text-[0.6rem] uppercase text-slate-400 font-semibold tracking-wider">Industry Use Case</span>
-              <p className="mt-1 text-[0.68rem] text-slate-300 leading-relaxed">{project.industryUseCase}</p>
-            </div>
-            
-            <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/5">
-              <div>
-                <span className="block text-[0.55rem] uppercase text-slate-500 font-bold">Complexity</span>
-                <span className="text-xs font-mono font-extrabold text-cyan-300">{project.complexityScore}</span>
-              </div>
-              <div className="text-right">
-                <span className="block text-[0.55rem] uppercase text-slate-500 font-bold">Resume Worthiness</span>
-                <span className="text-xs font-bold text-emerald-400">{project.resumeWorthiness}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Call to Actions (links) */}
-      <div className="mt-4 flex gap-2 border-t border-white/5 pt-3">
-        {project.github && (
-          <a 
-            href={project.github} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-200 hover:border-primary/40 hover:bg-white/5 transition"
-          >
-            <Github size={13} /> Code Repository
-          </a>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // 8. Skill Matrix Component
 // ---------------------------------------------------------------------------
 export function SkillMatrix({ categories }: { categories: { category: string; skills: string[] }[] }) {
@@ -635,6 +418,7 @@ export default function ResponsePresentation({ content }: ResponsePresentationPr
 
 // Analyze and classify a text segment to decide the layout representation
 function ResponseAnalyzerBlock({ text }: { text: string }) {
+  const { profile, contact } = usePortfolio();
   const trimmedText = text.trim();
   if (!trimmedText) return null;
 
@@ -643,65 +427,39 @@ function ResponseAnalyzerBlock({ text }: { text: string }) {
     const lines = trimmedText.split("\n").map(l => l.trim()).filter(l => l.length > 0);
     const tableLines = lines.filter(l => l.startsWith("|") && l.endsWith("|"));
     if (tableLines.length >= 3) {
-      try {
-        const firstLine = tableLines[0];
-        if (!firstLine) return null;
+      const firstLine = tableLines[0];
+      if (!firstLine) return null;
 
-        // Extract headers
-        const headers = firstLine
-          .split("|")
-          .map(h => h.trim())
-          .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
-        
-        // Extract rows
-        const rows = tableLines.slice(2).map(line => 
-          line.split("|")
-            .map(c => c.trim())
-            .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
-        );
-
-        // Render the comparison table and regular text (if any) that comes before/after the table
-        const tableIdx = trimmedText.indexOf(firstLine);
-        const beforeText = trimmedText.substring(0, tableIdx).trim();
-        const afterText = trimmedText.substring(tableIdx + tableLines.join("\n").length).trim();
-
-        return (
-          <div className="w-full">
-            {beforeText && <MarkdownSection text={beforeText} />}
-            <ComparisonTable headers={headers} rows={rows} />
-            {afterText && <MarkdownSection text={afterText} />}
-          </div>
-        );
-      } catch (e) {
-        // Fallback if table parsing fails
-      }
-    }
-  }
-
-  // 2. PROJECT_RESPONSE Detection
-  // Check if text explains specific projects and extract fields if present, 
-  // or append details of projects mentioned.
-  for (const [projectId, project] of Object.entries(PORTFOLIO_PROJECTS)) {
-    // If the text mentions the project title and looks like a detailed explanation of it
-    if (trimmedText.toLowerCase().includes(project.title.toLowerCase())) {
-      // Find where project name is mentioned
-      // Check if we have descriptive lines, or if this is the core mention of the project
-      // If it's a project explain/intro, we render the project insight panel under the text.
-      // To prevent duplicate cards in case the AI lists multiple projects, we will render
-      // the insight card only if the block is long or contains project keywords like "built", "uses", "technology", "designed", "model".
-      const containsKeywords = ["model", "uses", "technolog", "database", "flutter", "relational", "predict", "pose", "cv", "code", "github"].some(kw => trimmedText.toLowerCase().includes(kw));
+      // Extract headers
+      const headers = firstLine
+        .split("|")
+        .map(h => h.trim())
+        .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
       
-      if (containsKeywords && trimmedText.length > 80) {
-        // Slice the block: render the text describing it, then render the rich ProjectInsightPanel!
-        return (
-          <div className="w-full">
-            <MarkdownSection text={trimmedText} />
-            <ProjectCard project={project} />
-          </div>
-        );
-      }
+      // Extract rows
+      const rows = tableLines.slice(2).map(line => 
+        line.split("|")
+          .map(c => c.trim())
+          .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
+      );
+
+      // Render the comparison table and regular text (if any) that comes before/after the table
+      const tableIdx = trimmedText.indexOf(firstLine);
+      const beforeText = trimmedText.substring(0, tableIdx).trim();
+      const afterText = trimmedText.substring(tableIdx + tableLines.join("\n").length).trim();
+
+      return (
+        <div className="w-full">
+          {beforeText && <MarkdownSection text={beforeText} />}
+          <ComparisonTable headers={headers} rows={rows} />
+          {afterText && <MarkdownSection text={afterText} />}
+        </div>
+      );
     }
   }
+
+  // Project cards are attached by the server from retrieved portfolio data
+  // (see app/api/chat/route.ts), so nothing is inferred from the text here.
 
   // 3. SKILLS_RESPONSE Detection (Grouped list of skills)
   // Look for structures like "**Languages**:", "**Frontend**:" or "AI/ML: " followed by list of items
@@ -752,7 +510,8 @@ function ResponseAnalyzerBlock({ text }: { text: string }) {
 
     lines.forEach(line => {
       const trimmedLine = line.trim();
-      const hasDate = dateRegex.test(trimmedLine);
+      // match() on a fresh pattern: test() on a /g regex keeps state between calls.
+      const hasDate = new RegExp(dateRegex.source, "i").test(trimmedLine);
       const isBullet = trimmedLine.startsWith("- ") || trimmedLine.startsWith("* ");
       
       if (hasDate && isBullet) {
@@ -792,37 +551,20 @@ function ResponseAnalyzerBlock({ text }: { text: string }) {
   }
 
   // 5. CONTACT_RESPONSE Detection
-  // Checks if the text has contact patterns like email, phone, github, etc.
-  if (trimmedText.includes("mandeepsingh") || trimmedText.includes("github.com/Mandeep") || trimmedText.includes("linkedin.com/in/") || trimmedText.includes("mandeep.singh")) {
-    const isContactBlock = ["email", "phone", "contact", "linkedin", "reach out", "connect"].some(w => trimmedText.toLowerCase().includes(w));
+  // When the text talks about getting in touch, append the verified contact
+  // card from live portfolio data rather than details parsed from the text.
+  const lowerText = trimmedText.toLowerCase();
+  const mentionsContactDetail =
+    lowerText.includes("github.com/") ||
+    lowerText.includes("linkedin.com/in/") ||
+    (contact.email !== "" && lowerText.includes(contact.email.toLowerCase()));
+  if (mentionsContactDetail) {
+    const isContactBlock = ["email", "phone", "contact", "linkedin", "reach out", "connect"].some(w => lowerText.includes(w));
     if (isContactBlock) {
-      // Find stats/links
-      const emailMatch = trimmedText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-      const phoneMatch = trimmedText.match(/\+?\d{2,3}[-\s]?\d{4,5}[-\s]?\d{4,5}/);
-      const email = emailMatch ? emailMatch[0] : "mandeepsingh7official@gmail.com";
-      const phone = phoneMatch ? phoneMatch[0] : "+91 81682 92942";
-
       return (
         <div className="w-full">
           <MarkdownSection text={trimmedText} />
-          <div className="grid grid-cols-2 gap-2 mt-3.5">
-            <a href={`mailto:${email}`} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] p-2.5 text-xs text-slate-300 hover:border-cyan-500/25 hover:bg-white/[0.04] transition">
-              <Mail size={14} className="text-cyan-300 shrink-0" />
-              <span className="truncate">{email}</span>
-            </a>
-            <a href={`tel:${phone.replace(/\s+/g, "")}`} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] p-2.5 text-xs text-slate-300 hover:border-cyan-500/25 hover:bg-white/[0.04] transition">
-              <Phone size={14} className="text-cyan-300 shrink-0" />
-              <span className="truncate">{phone}</span>
-            </a>
-            <a href="https://linkedin.com/in/mandeep-singh-4b711a248" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] p-2.5 text-xs text-slate-300 hover:border-cyan-500/25 hover:bg-white/[0.04] transition">
-              <Linkedin size={14} className="text-cyan-300 shrink-0" />
-              <span className="truncate">LinkedIn Profile</span>
-            </a>
-            <a href="https://github.com/Mandeep-vivu" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] p-2.5 text-xs text-slate-300 hover:border-cyan-500/25 hover:bg-white/[0.04] transition">
-              <Github size={14} className="text-cyan-300 shrink-0" />
-              <span className="truncate">GitHub Profile</span>
-            </a>
-          </div>
+          <ContactCard contact={contact} />
         </div>
       );
     }
@@ -858,10 +600,10 @@ function ResponseAnalyzerBlock({ text }: { text: string }) {
   // If it's a brief intro response about Mandeep (less than 400 chars, talking about B.Tech, ME, skills)
   if (trimmedText.toLowerCase().includes("pursuing m.e. in artificial intelligence") || (trimmedText.toLowerCase().includes("mandeep") && trimmedText.toLowerCase().includes("ai/ml engineer") && trimmedText.length < 350)) {
     const highlights = [
-      "AI/ML Engineer & Full Stack Developer",
-      "Pursuing M.E. in AI & ML at Chandigarh University",
-      "Architects intelligent systems (training models to cloud-native web apps)"
-    ];
+      profile.tagline,
+      ...profile.roles.slice(0, 2),
+      `Based in ${profile.location}`,
+    ].filter((item, index, all) => item && all.indexOf(item) === index);
     return (
       <div className="w-full">
         <SummaryCard title="Candidate Overview" summary={trimmedText} highlights={highlights} />

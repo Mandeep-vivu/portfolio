@@ -10,13 +10,14 @@ import skills from "../data/portfolio/skills.json" with { type: "json" };
 import education from "../data/portfolio/education.json" with { type: "json" };
 import experience from "../data/portfolio/experience.json" with { type: "json" };
 import certifications from "../data/portfolio/certifications.json" with { type: "json" };
+import type { Project } from "../lib/portfolio/types";
 
 export type VectorChunk = {
   id: string;
   type: "profile" | "project" | "skill" | "education" | "experience" | "certification";
   title: string;
   content: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
   embedding?: number[];
 };
 
@@ -51,7 +52,7 @@ async function generateEmbeddings() {
   });
 
   // 2. Projects
-  for (const project of projects as any[]) {
+  for (const project of projects as Project[]) {
     chunks.push({
       id: `project-${project.id}`,
       type: "project",

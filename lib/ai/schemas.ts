@@ -5,21 +5,30 @@ import { projectSchema } from "@/lib/portfolio/schemas";
 // Chat message schemas
 // ---------------------------------------------------------------------------
 
+/** Longest single chat message the API accepts. */
+export const MAX_MESSAGE_LENGTH = 4000;
+
+// Only "user" and "assistant" turns are accepted from the browser. Accepting
+// "system" (or tool) messages would let any visitor inject their own system
+// prompt into the model call.
 export const chatMessageSchema = z.object({
-  id: z.string().optional(),
-  role: z.enum(["system", "user", "assistant", "function", "data", "tool"]),
-  content: z.string().optional().default(""),
-}).passthrough();
+  role: z.enum(["user", "assistant"]),
+  content: z.string().max(MAX_MESSAGE_LENGTH).optional().default(""),
+});
+
+// Memory round-trips through the browser and is embedded in the system
+// prompt, so every field is length-bounded.
+const memoryEntity = z.string().max(200);
 
 export const conversationMemorySchema = z.object({
-  activeTopic: z.string().nullable().describe("The current topic of conversation, if any."),
-  lastProjects: z.array(z.string()).describe("List of recent project IDs or titles discussed in chronological order."),
-  lastSkills: z.array(z.string()).describe("List of recent skills discussed."),
-  lastEntities: z.array(z.string()).describe("Other significant entities recently mentioned (e.g. universities, companies)."),
+  activeTopic: z.string().max(200).nullable().describe("The current topic of conversation, if any."),
+  lastProjects: z.array(memoryEntity).max(10).describe("List of recent project IDs or titles discussed in chronological order."),
+  lastSkills: z.array(memoryEntity).max(10).describe("List of recent skills discussed."),
+  lastEntities: z.array(memoryEntity).max(10).describe("Other significant entities recently mentioned (e.g. universities, companies)."),
   recentMessages: z.array(z.object({
-    role: z.string(),
-    content: z.string()
-  })).describe("Brief summaries or raw content of the most recent interactions."),
+    role: z.enum(["user", "assistant"]),
+    content: z.string().max(MAX_MESSAGE_LENGTH),
+  })).max(10).describe("Brief summaries or raw content of the most recent interactions."),
 });
 
 export type ConversationMemory = z.infer<typeof conversationMemorySchema>;
@@ -39,23 +48,41 @@ export const singleTurnResponseSchema = z.object({
   activeTopic: z.string().describe("The active topic of conversation."),
 });
 
+/** A project as rendered by the chat project card. */
+export const chatProjectSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  language: z.string().optional(),
+  tech: z.array(z.string()).optional(),
+  topics: z.array(z.string()).optional(),
+  technologies: z.array(z.string()).optional(),
+  readmeSummary: z.string().optional(),
+  githubUrl: z.string().optional(),
+  demoUrl: z.string().optional(),
+  github: z.string().optional(),
+  demo: z.string().optional(),
+  category: z.string().optional(),
+  difficulty: z.string().optional(),
+  skillsDemonstrated: z.array(z.string()).optional(),
+  keyFeatures: z.array(z.string()).optional(),
+  recruiterSummary: z.string().optional(),
+  problemSolved: z.string().optional(),
+  industryUseCase: z.string().optional(),
+  projectType: z.string().optional(),
+  complexityScore: z.number().optional(),
+  resumeWorthiness: z.number().optional(),
+  aiRelated: z.boolean().optional(),
+});
+
+export type ChatProject = z.infer<typeof chatProjectSchema>;
+
 export const blockSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("text"), content: z.string() }),
   z.object({
     type: z.literal("project_card"),
-    projects: z.array(z.object({
-      id: z.string(),
-      name: z.string().optional(),
-      title: z.string().optional(),
-      description: z.string().optional(),
-      tech: z.array(z.string()).optional(),
-      topics: z.array(z.string()).optional(),
-      readmeSummary: z.string().optional(),
-      githubUrl: z.string().optional(),
-      demoUrl: z.string().optional(),
-      github: z.string().optional(),
-      demo: z.string().optional(),
-    })),
+    projects: z.array(chatProjectSchema),
   }),
   z.object({
     type: z.literal("resume_link"),
@@ -79,11 +106,7 @@ export const blockSchema = z.discriminatedUnion("type", [
 
 export type Block = z.infer<typeof blockSchema>;
 
-export const finalResponseSchema = z.object({
-  blocks: z.array(blockSchema).min(1).describe("An array of structural blocks. Use text blocks for conversational responses and dedicated blocks (project, resume, contact) to present structured data. Never output an empty blocks array."),
-});
-
-
+export type ContactBlock = Extract<Block, { type: "contact" }>;
 
 // ---------------------------------------------------------------------------
 // Result schemas

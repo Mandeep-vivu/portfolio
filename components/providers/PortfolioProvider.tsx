@@ -1,38 +1,20 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import { seedPortfolio } from "@/lib/portfolio/seed";
 import type { PortfolioData } from "@/lib/portfolio/types";
 
 const PortfolioContext = createContext<PortfolioData>(seedPortfolio);
 
-export function PortfolioProvider({ children }: { children: ReactNode }) {
-  const [portfolio, setPortfolio] = useState(seedPortfolio);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    fetch("/api/portfolio", { signal: controller.signal })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data: PortfolioData | null) => {
-        if (data) setPortfolio(data);
-      })
-      .catch(() => undefined);
-
-    return () => controller.abort();
-  }, []);
-
-  const value = useMemo(() => portfolio, [portfolio]);
-
+export function PortfolioProvider({
+  portfolio,
+  children,
+}: {
+  portfolio: PortfolioData;
+  children: ReactNode;
+}) {
   return (
-    <PortfolioContext.Provider value={value}>
+    <PortfolioContext.Provider value={portfolio}>
       {children}
     </PortfolioContext.Provider>
   );

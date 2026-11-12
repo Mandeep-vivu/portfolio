@@ -1,15 +1,33 @@
 import { describe, expect, it } from "vitest";
 import { seedPortfolio } from "@/lib/portfolio/seed";
-import {
-  buildKnowledgeDocuments,
-  retrieveDocuments,
-  searchProjects,
-} from "./retrieval";
+import { buildKnowledgeDocuments, retrieveDocuments } from "./retrieval";
 
 describe("portfolio retrieval", () => {
-  it("ranks matching AI projects", () => {
-    const matches = searchProjects("computer vision AI project", seedPortfolio);
-    expect(matches[0]?.id).toBe("fitness-ai");
+  const documents = buildKnowledgeDocuments(seedPortfolio);
+
+  it.each([
+    ["graph neural network research", "mt-stgat-grid-fault-research"],
+    ["deep learning ECG project", "single-lead-ecg-diagnostic-analysis"],
+    ["database project", "PROJECT-RDBMS"],
+  ])("ranks the matching project first for %j", (query, expectedId) => {
+    expect(retrieveDocuments(query, documents)[0]?.id).toBe(expectedId);
+  });
+
+  it("surfaces AI projects for a general AI question", () => {
+    const ids = retrieveDocuments("What AI projects has he built?", documents).map((d) => d.id);
+    expect(ids).toContain("single-lead-ecg-diagnostic-analysis");
+    expect(ids).toContain("mt-stgat-grid-fault-research");
+  });
+
+  it("finds the skills overview for a strongest-stack question", () => {
+    const ids = retrieveDocuments("What is his strongest technical stack?", documents).map((d) => d.id);
+    expect(ids).toContain("skills-summary");
+  });
+
+  it("does not reorder the portfolio's skills", () => {
+    const before = seedPortfolio.skills.map((skill) => skill.name);
+    buildKnowledgeDocuments(seedPortfolio);
+    expect(seedPortfolio.skills.map((skill) => skill.name)).toEqual(before);
   });
 
   it("returns no results for unsupported information", () => {

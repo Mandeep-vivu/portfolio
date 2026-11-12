@@ -120,6 +120,9 @@ const SYNONYM_MAP: Record<string, string[]> = {
 
   // Misc
   good: ["strong", "proficient", "skilled", "expert", "best"],
+  strongest: ["strong", "best", "top", "proficiency"],
+  languages: ["language", "python", "programming"],
+  language: ["languages", "python", "programming"],
   best: ["strongest", "top", "primary", "main", "good"],
   strong: ["good", "proficient", "skilled", "expert"],
   latest: ["recent", "current", "new"],
@@ -297,6 +300,11 @@ function categoryBoost(queryTokens: string[], docCategory: string): number {
 // Knowledge document builder — enriched with searchable terms
 // ---------------------------------------------------------------------------
 
+/** Stable knowledge-document id for a skill, shared with hybrid retrieval. */
+export function skillDocumentId(name: string): string {
+  return `skill-${name.toLowerCase().replace(/\W+/g, "-")}`;
+}
+
 export function buildKnowledgeDocuments(
   portfolio: PortfolioData,
 ): KnowledgeDocument[] {
@@ -340,6 +348,7 @@ export function buildKnowledgeDocuments(
         `Title: ${project.title || project.name}`,
         `Description: ${project.description}`,
         `Technology: ${(project.tech || project.topics || []).join(", ")}`,
+        project.language ? `Language: ${project.language}` : "",
         project.recruiterSummary ? `Recruiter Summary: ${project.recruiterSummary}` : "",
         project.problemSolved ? `Problem Solved: ${project.problemSolved}` : "",
         project.skillsDemonstrated && project.skillsDemonstrated.length > 0 ? `Skills Demonstrated: ${project.skillsDemonstrated.join(", ")}` : "",
@@ -353,6 +362,7 @@ export function buildKnowledgeDocuments(
       ].filter(Boolean).join("\n"),
       searchableTerms: [
         "project", "built", "created", "developed",
+        project.aiRelated ? "ai ml artificial intelligence machine learning" : "",
         project.category || "",
         project.difficulty || "",
         project.industryUseCase || "",
@@ -362,7 +372,7 @@ export function buildKnowledgeDocuments(
       ].filter(Boolean).map((t) => t.toLowerCase()).join(" "),
     })),
     ...portfolio.skills.map((skill) => ({
-      id: `skill-${skill.name.toLowerCase().replace(/\W+/g, "-")}`,
+      id: skillDocumentId(skill.name),
       category: "skill",
       title: skill.name,
       content: `${skill.name} is listed in the ${skill.category} category with a portfolio proficiency level of ${skill.level}%. Category: ${skill.category === "ai" ? "AI & Machine Learning" : skill.category === "fullstack" ? "Full Stack Development" : "Developer Tools"}.`,
@@ -376,7 +386,7 @@ export function buildKnowledgeDocuments(
         "AI & Machine Learning skills: " + portfolio.skills.filter((s) => s.category === "ai").map((s) => `${s.name} (${s.level}%)`).join(", "),
         "Full Stack Development skills: " + portfolio.skills.filter((s) => s.category === "fullstack").map((s) => `${s.name} (${s.level}%)`).join(", "),
         "Developer Tools: " + portfolio.skills.filter((s) => s.category === "tools").map((s) => `${s.name} (${s.level}%)`).join(", "),
-        `Strongest skills: ${portfolio.skills.sort((a, b) => b.level - a.level).slice(0, 5).map((s) => `${s.name} (${s.level}%)`).join(", ")}`,
+        `Strongest skills: ${[...portfolio.skills].sort((a, b) => b.level - a.level).slice(0, 5).map((s) => `${s.name} (${s.level}%)`).join(", ")}`,
       ].join("\n"),
       searchableTerms: "skills overview summary all technologies stack proficiency expertise what good strong best top",
     },
@@ -471,7 +481,25 @@ export function retrieveDocuments(
         if (match > 0) fuzzyScore += match;
       }
 
-      // Signal 5: Category boost
+      // Signal 5: Query coverage — the share of query terms the document
+      // contains (a synonym counts half). Cosine similarity alone under-scores
+      // short questions against long documents.
+      const docTokenSet = new Set(allDocTokens);
+      let covered = 0;
+      for (const qt of rawQueryTokens) {
+        if (docTokenSet.has(qt)) {
+          covered += 1;
+        } else if (
+          (SYNONYM_MAP[qt] ?? []).some((synonym) =>
+            synonym.split(/\s+/).every((part) => docTokenSet.has(part)),
+          )
+        ) {
+          covered += 0.5;
+        }
+      }
+      const coverageScore = covered / rawQueryTokens.length;
+
+      // Signal 6: Category boost
       const catBoost = categoryBoost(rawQueryTokens, document.category);
 
       // Combine signals with weights
@@ -479,7 +507,8 @@ export function retrieveDocuments(
         tfidfScore * 0.40 +
         titleExactMatches * 0.22 +
         bigramMatches * 0.18 +
-        fuzzyScore * 0.12;
+        fuzzyScore * 0.12 +
+        coverageScore * 0.20;
 
       const score = rawScore * catBoost;
       return { ...document, score };
@@ -487,31 +516,4 @@ export function retrieveDocuments(
     .filter((document) => document.score >= 0.06)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
-}
-
-// ---------------------------------------------------------------------------
-// Project search helper
-// ---------------------------------------------------------------------------
-
-export function searchProjects(
-  query: string,
-  portfolio: PortfolioData,
-  limit = 6,
-) {
-  const documents = portfolio.projects.map((project) => ({
-    id: project.id,
-    category: "project",
-    title: project.title || project.name,
-    content: `${project.description} ${project.longDesc || ""} ${(project.tech || project.topics || []).join(" ")}`,
-    searchableTerms: `project built created developed ${(project.tech || project.topics || []).map((t) => t.toLowerCase()).join(" ")}`,
-  }));
-  const ranked = retrieveDocuments(query, documents, limit);
-  return ranked
-    .map((match) =>
-      portfolio.projects.find((project) => project.id === match.id),
-    )
-    .filter(
-      (project): project is PortfolioData["projects"][number] =>
-        Boolean(project),
-    );
 }

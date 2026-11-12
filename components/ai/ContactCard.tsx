@@ -1,14 +1,23 @@
 import { Mail, Phone, ExternalLink } from "lucide-react";
+import { safeHref } from "@/lib/url";
 import { FiGithub as Github, FiLinkedin as Linkedin } from "react-icons/fi";
 
-export default function ContactCard({ contact }: { contact: any }) {
+type ContactDetails = {
+  email: string;
+  phone?: string | undefined;
+  linkedin?: string | undefined;
+  github?: string | undefined;
+  portfolioUrl?: string | undefined;
+};
+
+export default function ContactCard({ contact }: { contact: ContactDetails }) {
   const links = [
     { label: contact.email, href: `mailto:${contact.email}`, icon: Mail },
     ...(contact.phone ? [{ label: contact.phone, href: `tel:${contact.phone.replace(/\s+/g, "")}`, icon: Phone }] : []),
     ...(contact.linkedin ? [{ label: "LinkedIn", href: contact.linkedin, icon: Linkedin }] : []),
     ...(contact.github ? [{ label: "GitHub", href: contact.github, icon: Github }] : []),
     ...(contact.portfolioUrl ? [{ label: "Portfolio", href: contact.portfolioUrl, icon: ExternalLink }] : []),
-  ];
+  ].filter((link) => safeHref(link.href));
 
   return (
     <div className="mt-3 grid grid-cols-2 gap-2">

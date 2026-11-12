@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Too many login attempts." }, { status: 429 });
   }
 
-  const parsed = loginSchema.safeParse(await request.json());
+  const parsed = loginSchema.safeParse(await request.json().catch(() => null));
   if (
     !parsed.success ||
     !verifyAdminCredentials(parsed.data.email, parsed.data.password)

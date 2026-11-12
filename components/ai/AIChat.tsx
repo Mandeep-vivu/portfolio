@@ -56,6 +56,29 @@ function id() {
   return crypto.randomUUID();
 }
 
+/**
+ * Plain text of a message for the conversation history. Assistant replies
+ * arrive as blocks, so without this the model would see its own previous
+ * answers as empty strings and lose the thread of the conversation.
+ */
+function messageText(message: UIMessage): string {
+  if (message.content) return message.content;
+  return (message.blocks ?? [])
+    .map((block) => {
+      if (block.type === "text") return block.content;
+      if (block.type === "project_card") {
+        return `[Showed projects: ${block.projects.map((p) => p.title || p.name || p.id).join(", ")}]`;
+      }
+      if (block.type === "resume_link") return "[Shared the resume link]";
+      if (block.type === "contact") return "[Shared contact details]";
+      if (block.type === "schedule") return "[Shared the scheduling link]";
+      return "";
+    })
+    .filter(Boolean)
+    .join("\n")
+    .slice(0, 4000);
+}
+
 export default function AIChat() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -140,9 +163,11 @@ export default function AIChat() {
       };
       const assistantId = id();
       const history = [...messages, userMessage]
+        .filter((message) => message.id !== WELCOME.id)
         .filter((message) => !message.pending && !message.error && !message.thinking)
-        .slice(-10)
-        .map(({ role, content }) => ({ role, content }));
+        .map((message) => ({ role: message.role, content: messageText(message) }))
+        .filter((message) => message.content)
+        .slice(-10);
 
       setMessages((current) => [
         ...current,
@@ -183,10 +208,10 @@ export default function AIChat() {
 
           for (const line of lines) {
             if (!line.trim()) continue;
-            let parsed;
+            let parsed: unknown;
             try {
               parsed = JSON.parse(line);
-            } catch (e) {
+            } catch {
               continue;
             }
             if (!isStreamEvent(parsed)) continue;
@@ -247,7 +272,7 @@ export default function AIChat() {
                 if (event.event === "error") {
                   let errorContent = String(event.data);
                   if (typeof event.data === 'object' && event.data !== null && 'content' in event.data) {
-                    errorContent = String((event.data as any).content);
+                    errorContent = String(event.data.content);
                   }
                   return {
                     ...message,
@@ -286,7 +311,7 @@ export default function AIChat() {
         setGenerating(false);
       }
     },
-    [generating, messages],
+    [generating, memory, messages],
   );
 
   const onSubmit = (event: FormEvent) => {

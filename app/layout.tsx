@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import CalendlyBadge from "@/components/CalendlyBadge";
+import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,7 +23,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mandeep Singh — AI/ML Engineer & Full Stack Developer",
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "/" },
+  title: {
+    default: "Mandeep Singh — AI/ML Engineer & Full Stack Developer",
+    template: "%s · Mandeep Singh",
+  },
   description:
     "Portfolio of Mandeep Singh — AI/ML Engineer specializing in Machine Learning, Python, Cloud, Full Stack Development, and emerging technologies. Pursuing M.E. in AI & ML at Chandigarh University.",
   keywords: [
@@ -42,6 +48,7 @@ export const metadata: Metadata = {
   creator: "Mandeep Singh",
   openGraph: {
     type: "website",
+    url: "/",
     locale: "en_US",
     title: "Mandeep Singh — AI/ML Engineer & Full Stack Developer",
     description:

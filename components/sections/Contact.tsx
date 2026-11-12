@@ -383,7 +383,7 @@ export default function Contact() {
 
         setStatus("sent");
         setForm(INITIAL_FORM);
-      } catch (error) {
+      } catch {
         setStatus("error");
         setErrorMessage(
           "Something went wrong while sending your message. Please try again shortly."

@@ -88,7 +88,25 @@ function getDeepSeekModel() {
   return deepseek(DEEPSEEK_MODEL);
 }
 
-async function fetchGitHubRepos() {
+/** The subset of GitHub's repository payload this script reads. */
+interface GitHubRepo {
+  name: string;
+  description: string | null;
+  language: string | null;
+  topics?: string[];
+  homepage: string | null;
+  html_url: string;
+  size: number;
+  fork: boolean;
+  private: boolean;
+  archived: boolean;
+  stargazers_count: number;
+  forks_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+async function fetchGitHubRepos(): Promise<GitHubRepo[]> {
   const url = `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated`;
   const headers: Record<string, string> = {
     'Accept': 'application/vnd.github.v3+json',
@@ -105,7 +123,7 @@ async function fetchGitHubRepos() {
     throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
   }
 
-  return await response.json();
+  return (await response.json()) as GitHubRepo[];
 }
 
 async function fetchReadme(repoName: string): Promise<string> {
@@ -126,7 +144,7 @@ async function fetchReadme(repoName: string): Promise<string> {
  * Robust rule-based fallback metadata generator if AI analysis fails
  * Uses observable repository signals to estimate quality metrics
  */
-function generateFallbackIntelligence(repo: any, readmeContent: string): z.infer<typeof projectIntelligenceSchema> {
+function generateFallbackIntelligence(repo: GitHubRepo, readmeContent: string): z.infer<typeof projectIntelligenceSchema> {
   const readmeLower = readmeContent.toLowerCase();
   const descriptionLower = (repo.description || "").toLowerCase();
   const combinedText = `${repo.name.toLowerCase()} ${descriptionLower} ${readmeLower}`;
@@ -274,7 +292,7 @@ function generateFallbackIntelligence(repo: any, readmeContent: string): z.infer
   };
 }
 
-async function analyzeProjectIntelligence(repo: any, readmeContent: string): Promise<z.infer<typeof projectIntelligenceSchema>> {
+async function analyzeProjectIntelligence(repo: GitHubRepo, readmeContent: string): Promise<z.infer<typeof projectIntelligenceSchema>> {
   if (!DEEPSEEK_API_KEY || !readmeContent || readmeContent.length < 10) {
     console.log(`Using rule-based fallback analysis for ${repo.name}...`);
     return generateFallbackIntelligence(repo, readmeContent);
@@ -336,8 +354,8 @@ function loadCustomMetadata(): Record<string, Partial<Project>> {
   // Try loading from the old portfolio projects file to preserve existing custom designs
   try {
     if (fs.existsSync(OLD_PROJECTS_FILE)) {
-      const oldProjects = JSON.parse(fs.readFileSync(OLD_PROJECTS_FILE, 'utf-8'));
-      oldProjects.forEach((p: any) => {
+      const oldProjects = JSON.parse(fs.readFileSync(OLD_PROJECTS_FILE, 'utf-8')) as Partial<Project>[];
+      oldProjects.forEach((p) => {
         let repoName = p.id;
         if (p.github) {
           const parts = p.github.split('/');
@@ -348,7 +366,7 @@ function loadCustomMetadata(): Record<string, Partial<Project>> {
             }
           }
         }
-        metadataMap[repoName.toLowerCase()] = p;
+        if (repoName) metadataMap[repoName.toLowerCase()] = p;
       });
     }
   } catch (error) {
@@ -413,7 +431,7 @@ async function sync() {
         console.log(`Reusing cached metadata for ${repo.name}...`);
         intelligence = {
           category: customMeta.category || "Web Development",
-          difficulty: (customMeta.difficulty || "Intermediate") as any,
+          difficulty: (customMeta.difficulty || "Intermediate") as z.infer<typeof projectIntelligenceSchema>["difficulty"],
           skillsDemonstrated: customMeta.skillsDemonstrated || [],
           keyFeatures: customMeta.keyFeatures || [],
           recruiterSummary: customMeta.recruiterSummary || "",
@@ -486,7 +504,7 @@ async function sync() {
           body: JSON.stringify(["GET", "portfolio:content:v1"]),
         });
         
-        let portfolioData: any = null;
+        let portfolioData: { projects?: Project[] } | null = null;
         if (getResponse.ok) {
           const resJson = await getResponse.json();
           if (typeof resJson.result === "string") {

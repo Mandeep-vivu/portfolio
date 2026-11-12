@@ -1,4 +1,4 @@
-import { ConversationMemory, ChatMessage } from "./schemas";
+import type { ConversationMemory, ChatMessage } from "./schemas";
 
 export function updateMemoryLocally(
   currentMemory: ConversationMemory | null | undefined,
@@ -6,12 +6,13 @@ export function updateMemoryLocally(
   intent: string,
   entities: string[]
 ): ConversationMemory {
-  const mem = currentMemory || {
-    activeTopic: null,
-    lastProjects: [],
-    lastSkills: [],
-    lastEntities: [],
-    recentMessages: []
+  // Work on a copy so the caller's memory object is never mutated.
+  const mem: ConversationMemory = {
+    activeTopic: currentMemory?.activeTopic ?? null,
+    lastProjects: [...(currentMemory?.lastProjects ?? [])],
+    lastSkills: [...(currentMemory?.lastSkills ?? [])],
+    lastEntities: [...(currentMemory?.lastEntities ?? [])],
+    recentMessages: [...(currentMemory?.recentMessages ?? [])],
   };
 
   const lastUserMessage = messages.filter(m => m.role === "user").pop();

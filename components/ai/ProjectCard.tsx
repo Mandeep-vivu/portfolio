@@ -10,8 +10,10 @@ import {
   Sparkles 
 } from "lucide-react";
 import { FiGithub as Github } from "react-icons/fi";
+import type { ChatProject } from "@/lib/ai/schemas";
+import { safeHref } from "@/lib/url";
 
-export default function ProjectCard({ project }: { project: any }) {
+export default function ProjectCard({ project }: { project: ChatProject }) {
   const [showInsights, setShowInsights] = useState(false);
 
   if (!project) return null;
@@ -22,8 +24,8 @@ export default function ProjectCard({ project }: { project: any }) {
   const difficulty = project.difficulty || "Intermediate";
   const tech = project.technologies || project.tech || project.topics || [];
   const language = project.language;
-  const github = project.githubUrl || project.github;
-  const demo = project.demoUrl || project.demo;
+  const github = safeHref(project.githubUrl || project.github, { webOnly: true });
+  const demo = safeHref(project.demoUrl || project.demo, { webOnly: true });
 
   // Rich metadata fields
   const problemSolved = project.problemSolved;
@@ -42,15 +44,15 @@ export default function ProjectCard({ project }: { project: any }) {
     industryUseCase
   );
 
-  // Robust metrics parsing
-  const compVal = typeof complexityScore === "number" ? complexityScore : parseInt(complexityScore) || 50;
-  const resumeVal = typeof resumeWorthiness === "number" ? resumeWorthiness : parseInt(resumeWorthiness) || 50;
-
-  const compPercent = compVal <= 10 ? compVal * 10 : compVal;
-  const resumePercent = resumeVal <= 10 ? resumeVal * 10 : resumeVal;
-
-  const compText = typeof complexityScore === "number" ? `${complexityScore}%` : complexityScore;
-  const resumeText = typeof resumeWorthiness === "number" ? `${resumeWorthiness}%` : resumeWorthiness;
+  // Scores are stored as 0-100; older records used a 0-10 scale.
+  const toPercent = (score: number | undefined) => {
+    const value = score ?? 50;
+    return Math.min(100, value <= 10 ? value * 10 : value);
+  };
+  const compPercent = toPercent(complexityScore);
+  const resumePercent = toPercent(resumeWorthiness);
+  const compText = `${compPercent}%`;
+  const resumeText = `${resumePercent}%`;
 
   return (
     <motion.article

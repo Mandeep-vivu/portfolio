@@ -7,11 +7,11 @@ import ResumeCard from "./ResumeCard";
 import ContactCard from "./ContactCard";
 import SchedulingCard from "./SchedulingCard";
 import type { Block } from "@/lib/ai/schemas";
+import { safeHref } from "@/lib/url";
 import {
   Award,
   BookOpen,
   Briefcase,
-  CalendarDays,
   Crown,
   Download,
   ExternalLink,
@@ -35,16 +35,6 @@ export type UIMessage = {
   thinkingText?: string | undefined;
   error?: boolean | undefined;
 };
-
-function safeHref(href?: string) {
-  if (!href) return "";
-  try {
-    const url = new URL(href, window.location.origin);
-    return ["http:", "https:", "mailto:", "tel:"].includes(url.protocol) ? href : "";
-  } catch {
-    return "";
-  }
-}
 
 
 // Skill bar component
@@ -417,20 +407,20 @@ export default function ChatMessage({ message }: { message: UIMessage }) {
             {message.blocks && message.blocks.map((block, i) => {
               switch (block.type) {
                 case "text": return <TextMessage key={i} content={block.content} isUser={isUser} />;
-                case "project_card": 
-                  if (!(block as any).projects || (block as any).projects.length === 0) return null;
+                case "project_card":
+                  if (block.projects.length === 0) return null;
                   return (
                     <div key={i} className="mt-2 grid gap-2">
-                      {(block as any).projects.map((p: any) => (
-                        <ProjectCard key={p.id} project={p} />
+                      {block.projects.map((project) => (
+                        <ProjectCard key={project.id} project={project} />
                       ))}
                     </div>
                   );
-                case "resume_link": return <ResumeCard key={i} url={(block as any).url} title={(block as any).title} />;
-                case "contact": return <ContactCard key={i} contact={block as any} />;
-                case "schedule": return <SchedulingCard key={i} url={(block as any).url} messageId={message.id} />;
+                case "resume_link": return <ResumeCard key={i} url={block.url} title={block.title} />;
+                case "contact": return <ContactCard key={i} contact={block} />;
+                case "schedule": return <SchedulingCard key={i} url={block.url} messageId={message.id} />;
                 case "error": return <ErrorCard key={i} message={block.content} />;
-                default: return <ErrorCard key={i} message={`Unknown block type: ${(block as any).type}`} />;
+                default: return null;
               }
             })}
           </div>

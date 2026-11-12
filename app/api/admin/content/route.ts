@@ -29,7 +29,7 @@ export async function PUT(request: Request) {
   const unauthorized = await requireAdmin();
   if (unauthorized) return unauthorized;
 
-  const parsed = updateSchema.safeParse(await request.json());
+  const parsed = updateSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return Response.json(
       { error: "Invalid content update.", issues: parsed.error.issues },

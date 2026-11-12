@@ -1,427 +1,202 @@
-import { ZodError } from "zod";
-import { generateObject } from "ai";
+import { generateObject, type LanguageModel } from "ai";
+import { BUSY_MESSAGE, answerLocalIntent, blocksFromContext } from "@/lib/ai/answers";
 import { getAIModel, getGroqModel, GROUNDED_ANSWER_PROMPT } from "@/lib/ai/gemini";
 import { retrieveHybridContext } from "@/lib/ai/hybrid";
-import { chatRequestSchema, singleTurnResponseSchema } from "@/lib/ai/schemas";
-import { getPortfolio } from "@/lib/portfolio/repository";
-import { rateLimit, requestIdentity } from "@/lib/security/rate-limit";
-import { generateSuggestions } from "@/lib/ai/suggestions";
+import { detectLocalIntent } from "@/lib/ai/intents";
 import { resolveLocalReference, updateMemoryLocally } from "@/lib/ai/memory";
+import {
+  chatRequestSchema,
+  singleTurnResponseSchema,
+  type Block,
+  type ChatMessage,
+  type ConversationMemory,
+} from "@/lib/ai/schemas";
+import { generateSuggestions } from "@/lib/ai/suggestions";
+import { getPortfolio } from "@/lib/portfolio/repository";
+import type { PortfolioData } from "@/lib/portfolio/types";
+import { rateLimit, requestIdentity } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+type Answer = {
+  blocks: Block[];
+  intent: string;
+  referencedEntities: string[];
+};
 
 function streamEvent(value: unknown) {
   return `${JSON.stringify(value)}\n`;
 }
 
-function calculateAge(birthDate: string, asOf = new Date()) {
-  const born = new Date(`${birthDate}T00:00:00`);
-  if (Number.isNaN(born.getTime())) return null;
-
-  let age = asOf.getFullYear() - born.getFullYear();
-  const hadBirthdayThisYear =
-    asOf.getMonth() > born.getMonth() ||
-    (asOf.getMonth() === born.getMonth() && asOf.getDate() >= born.getDate());
-
-  if (!hadBirthdayThisYear) age -= 1;
-  return age;
+function isQuotaError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return /quota|429|RESOURCE_EXHAUSTED|rate.?limit/i.test(message);
 }
 
-function formatBirthDate(birthDate: string) {
-  const born = new Date(`${birthDate}T00:00:00`);
-  if (Number.isNaN(born.getTime())) return birthDate;
+/**
+ * Answers an open-ended question with one grounded model call. Tries the
+ * primary model, then Groq when the primary is out of quota, and finally
+ * falls back to the retrieved portfolio context so the visitor still gets a
+ * useful reply when no provider is reachable.
+ */
+async function answerWithModel(
+  question: string,
+  history: ChatMessage[],
+  memory: ConversationMemory | null | undefined,
+  portfolio: PortfolioData,
+): Promise<Answer> {
+  const resolvedQuestion = resolveLocalReference(question, memory);
+  const context = await retrieveHybridContext(resolvedQuestion, portfolio, 5);
 
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(born);
-}
+  const fallback = (): Answer => {
+    const blocks = blocksFromContext(
+      context,
+      "Based on Mandeep's portfolio, here is the relevant information:",
+    );
+    return {
+      blocks: blocks.length > 0 ? blocks : [{ type: "error", content: BUSY_MESSAGE }],
+      intent: "UNKNOWN",
+      referencedEntities: [],
+    };
+  };
 
-function buildPortfolioBlocks(hybridCtx: any) {
-  const blocks: any[] = [];
+  const system = [
+    GROUNDED_ANSWER_PROMPT,
+    `CURRENT CONVERSATION MEMORY:\n${memory ? JSON.stringify(memory, null, 2) : "No memory yet."}`,
+    `RETRIEVED PORTFOLIO CONTEXT:\n${JSON.stringify(context, null, 2)}`,
+  ].join("\n\n");
 
-  if (
-    hybridCtx.matchedProjects.length > 0 ||
-    hybridCtx.semanticMatches.length > 0 ||
-    hybridCtx.matchedSkills.length > 0 ||
-    hybridCtx.matchedExperience.length > 0
-  ) {
-    let text = "Based on Mandeep's portfolio:\n\n";
+  const messages = [
+    ...history.map(({ role, content }) => ({ role, content })),
+    { role: "user" as const, content: resolvedQuestion },
+  ];
 
-    if (hybridCtx.semanticMatches.length > 0) {
-      text += hybridCtx.semanticMatches.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
-    }
-    if (hybridCtx.matchedSkills.length > 0) {
-      text += `\n\nSkills: ${hybridCtx.matchedSkills.map((s: any) => s.name).join(", ")}`;
-    }
-    if (hybridCtx.matchedExperience.length > 0) {
-      text += `\n\nExperience:\n${hybridCtx.matchedExperience.map((e: any) => `- **${e.title}** at ${e.org}`).join("\n")}`;
-    }
+  const generate = (model: LanguageModel) =>
+    generateObject({ model, system, messages, schema: singleTurnResponseSchema });
 
-    if (text !== "Based on Mandeep's portfolio:\n\n") {
-      blocks.push({ type: "text", content: text.trim() });
-    }
+  const primary = getAIModel();
+  const groq = getGroqModel();
+  let result: Awaited<ReturnType<typeof generate>> | null = null;
 
-    if (hybridCtx.matchedProjects.length > 0) {
-      blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
+  if (primary) {
+    try {
+      result = await generate(primary);
+    } catch (error) {
+      console.error("Primary model error:", error);
+      if (!isQuotaError(error)) return fallback();
     }
   }
 
-  return blocks;
+  if (!result && groq) {
+    try {
+      result = await generate(groq);
+    } catch (error) {
+      console.error("Groq fallback error:", error);
+    }
+  }
+
+  if (!result) return fallback();
+
+  const answer = result.object;
+  const blocks: Block[] = [];
+
+  if (answer.needsClarification && answer.clarificationQuestion) {
+    blocks.push({ type: "text", content: answer.clarificationQuestion });
+  } else if (answer.response) {
+    blocks.push({ type: "text", content: answer.response });
+  }
+
+  const aboutProjects =
+    answer.intent.toUpperCase().includes("PROJECT") || answer.activeTopic === "Projects";
+  if (aboutProjects && context.matchedProjects.length > 0) {
+    blocks.push({ type: "project_card", projects: context.matchedProjects });
+  }
+
+  return {
+    blocks: blocks.length > 0 ? blocks : fallback().blocks,
+    intent: answer.intent,
+    referencedEntities: answer.referencedEntities ?? [],
+  };
 }
 
 export async function POST(request: Request) {
-  const identity = requestIdentity(request);
-  const limit = rateLimit(`chat:${identity}`, 20, 60_000);
-
+  const limit = rateLimit(`chat:${requestIdentity(request)}`, 20, 60_000);
   if (!limit.allowed) {
     return Response.json(
       { error: "Too many requests. Please try again shortly." },
       {
         status: 429,
         headers: {
-          "Retry-After": String(
-            Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000)),
-          ),
+          "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))),
         },
       },
     );
   }
 
-  try {
-    const payload = chatRequestSchema.parse(await request.json());
-    const encoder = new TextEncoder();
-    
-    // We get model later. It may be missing (e.g. quota), but local routing should still work!
-    let model: any = null;
-    try {
-      model = getAIModel();
-    } catch (e) {
-      // Ignore missing config until we actually need Gemini
-    }
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        let metrics = { query: "", usedGemini: false, usedRAG: false, usedTool: false, responseTime: 0 };
-        const startTime = Date.now();
-
-        try {
-          const currentMessages = payload.messages as any[];
-          const lastMessage = currentMessages[currentMessages.length - 1].content.toLowerCase();
-          metrics.query = lastMessage;
-
-          let blocks: any[] = [];
-          let currentMemory = payload.memory;
-          let intentStr = "UNKNOWN";
-          let referencedEntities: string[] = [];
-
-          controller.enqueue(encoder.encode(streamEvent({ event: "thinking" })));
-
-          // --- 1. LOCAL ROUTING (NO GEMINI) ---
-          if (/^(hi|hello|hey|greetings|good morning|good afternoon|good evening|yo|sup)(\s|$)/.test(lastMessage)) {
-             intentStr = "GREETING";
-             blocks.push({ type: "text", content: "Hello! I'm Mandeep AI. I can help you explore Mandeep's portfolio, skills, and projects. What would you like to know?" });
-          }
-          else if (/resume|cv|download resume|download cv/.test(lastMessage)) {
-             intentStr = "RESUME_REQUEST";
-             metrics.usedTool = true;
-             const portfolio = await getPortfolio();
-             if (portfolio.profile.resumeUrl) {
-                blocks.push({ 
-                  type: "resume_link", 
-                  url: portfolio.profile.resumeUrl, 
-                  title: `${portfolio.profile.name} - Resume` 
-                });
-             } else {
-                blocks.push({ type: "text", content: "Resume not found" });
-             }
-          } 
-          else if (/(age|how old|date of birth|birth date|dob|born|birthday)/.test(lastMessage)) {
-             intentStr = "PROFILE_AGE_REQUEST";
-             metrics.usedTool = true;
-             const portfolio = await getPortfolio();
-             const age = portfolio.profile.birthDate ? calculateAge(portfolio.profile.birthDate) : null;
-             if (portfolio.profile.birthDate && age !== null) {
-               blocks.push({
-                 type: "text",
-                 content: `Mandeep was born on ${formatBirthDate(portfolio.profile.birthDate)}. He is currently ${age} years old.`,
-               });
-             } else {
-               blocks.push({ type: "text", content: "Mandeep's date of birth is not available in the portfolio data." });
-             }
-          }
-          else if (/(hobb(y|ies)|interest|interests|free time|outside work|what does he like|likes to do)/.test(lastMessage)) {
-             intentStr = "PROFILE_HOBBIES_REQUEST";
-             metrics.usedTool = true;
-             const portfolio = await getPortfolio();
-             const hobbies = portfolio.profile.hobbies ?? [];
-             if (hobbies.length > 0) {
-               blocks.push({
-                 type: "text",
-                 content: `Mandeep's hobbies and interests include ${hobbies.map((hobby) => hobby.toLowerCase()).join(", ")}.`,
-               });
-             } else {
-               blocks.push({ type: "text", content: "Mandeep's hobbies are not available in the portfolio data." });
-             }
-          }
-          else if (/(contact|email|github|linkedin|\bphone\b|phone number|mobile|mobile number|contact number|whatsapp|reach|connect|how can i call|call him|call mandeep)/.test(lastMessage)) {
-             intentStr = "CONTACT_REQUEST";
-             metrics.usedTool = true;
-             const portfolio = await getPortfolio();
-             blocks.push({
-               type: "contact",
-               email: portfolio.contact.email,
-               phone: portfolio.contact.phone,
-               linkedin: portfolio.contact.linkedin,
-               github: portfolio.contact.github,
-               portfolioUrl: portfolio.contact.portfolioUrl || process.env.NEXT_PUBLIC_SITE_URL || "",
-             });
-          }
-          else if (/schedule|book interview|book meeting|book call|arrange call|calendly/.test(lastMessage)) {
-             intentStr = "SCHEDULING_REQUEST";
-             metrics.usedTool = true;
-             const calendlyUrl = process.env.NEXT_PUBLIC_CALENDLY_URL ?? "";
-             if (calendlyUrl) {
-               blocks.push({ type: "schedule", url: calendlyUrl });
-             } else {
-               blocks.push({ type: "error", content: "Scheduling is not configured yet." });
-             }
-          }
-          else if (/(certif|certificate|credentials|credential|certifications)/.test(lastMessage)) {
-             intentStr = "CERTIFICATION_REQUEST";
-             metrics.usedTool = true;
-             const portfolio = await getPortfolio();
-             const certifications = portfolio.certifications.filter((entry) => entry.type === "certification");
-             if (certifications.length > 0) {
-               blocks.push({
-                 type: "text",
-                 content: `Mandeep has ${certifications.length} certifications:\n\n${certifications.map((entry) => `- ${entry.title}${entry.description ? `: ${entry.description}` : ""}`).join("\n")}`,
-               });
-             } else {
-               blocks.push({ type: "text", content: "No certifications were found in the portfolio." });
-             }
-          }
-          else if (/(achievement|achievements|award|awards|leadership|academic)/.test(lastMessage)) {
-             intentStr = "ACHIEVEMENT_REQUEST";
-             metrics.usedTool = true;
-             const portfolio = await getPortfolio();
-             const achievements = portfolio.certifications.filter((entry) => entry.type !== "certification");
-             if (achievements.length > 0) {
-               blocks.push({
-                 type: "text",
-                 content: `Mandeep's recognition includes ${achievements.length} achievements and honors:\n\n${achievements.map((entry) => `- ${entry.title}${entry.description ? `: ${entry.description}` : ""}`).join("\n")}`,
-               });
-             } else {
-               blocks.push({ type: "text", content: "No achievement records were found in the portfolio." });
-             }
-          }
-          else if (/what are his skills|what is his education|what certifications does he have|tell me about his experience/.test(lastMessage)) {
-             intentStr = "FAQ_REQUEST";
-             metrics.usedRAG = true;
-             const portfolio = await getPortfolio();
-             const hybridCtx = await retrieveHybridContext(lastMessage, portfolio, 4);
-             if (hybridCtx.matchedProjects.length > 0 || hybridCtx.semanticMatches.length > 0 || hybridCtx.matchedSkills.length > 0 || hybridCtx.matchedExperience.length > 0) {
-               let text = "Based on Mandeep's portfolio:\n\n";
-               
-               if (hybridCtx.semanticMatches.length > 0) {
-                 text += hybridCtx.semanticMatches.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
-               }
-               if (hybridCtx.matchedSkills.length > 0) {
-                 text += "\n\nSkills: " + hybridCtx.matchedSkills.map((s: any) => s.name).join(", ");
-               }
-               if (hybridCtx.matchedExperience.length > 0) {
-                 text += "\n\nExperience:\n" + hybridCtx.matchedExperience.map((e: any) => `- **${e.title}** at ${e.org}`).join("\n");
-               }
-               
-               if (text !== "Based on Mandeep's portfolio:\n\n") {
-                 blocks.push({ type: "text", content: text.trim() });
-               }
-               
-               if (hybridCtx.matchedProjects.length > 0) {
-                 blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
-               }
-             } else {
-               blocks.push({ type: "text", content: "I couldn't find specific information about that in the portfolio." });
-             }
-          }
-          else {
-            // --- 2. SINGLE GEMINI CALL (COMPLEX) ---
-            if (!model) {
-               throw new Error("AI is not configured. Please add GEMINI_API_KEY to your environment variables.");
-            }
-            metrics.usedGemini = true;
-            
-            // Resolve local references first
-            const resolvedQuery = resolveLocalReference(lastMessage, currentMemory);
-            
-            // Hybrid Retrieval
-            metrics.usedRAG = true;
-            const portfolio = await getPortfolio();
-            const hybridCtx = await retrieveHybridContext(resolvedQuery, portfolio, 5);
-            
-            let systemPrompt = `${GROUNDED_ANSWER_PROMPT}\n\nCURRENT CONVERSATION MEMORY:\n${
-              currentMemory ? JSON.stringify(currentMemory, null, 2) : "No memory yet."
-            }\n\nRETRIEVED PORTFOLIO CONTEXT:\n${JSON.stringify(hybridCtx, null, 2)}`;
-            
-            const aiCallMessages = [
-               ...currentMessages.slice(0, -1),
-               { role: "user", content: resolvedQuery }
-            ];
-
-            let aiResult;
-            try {
-              aiResult = await generateObject({
-                model,
-                system: systemPrompt,
-                messages: aiCallMessages as any[],
-                schema: singleTurnResponseSchema,
-              });
-            } catch (err: any) {
-              console.error("Gemini Quota/API Error:", err);
-              // 429 QUOTA FALLBACK
-              const isQuotaError = err?.message?.includes("quota") || err?.message?.includes("429") || err?.message?.includes("RESOURCE_EXHAUSTED");
-              
-              if (isQuotaError) {
-                const groqModel = getGroqModel();
-                if (groqModel) {
-                  console.log("Gemini Quota Exceeded. Falling back to Groq LLaMA 3.3...");
-                  try {
-                    aiResult = await generateObject({
-                      model: groqModel,
-                      system: systemPrompt,
-                      messages: aiCallMessages as any[],
-                      schema: singleTurnResponseSchema,
-                    });
-                  } catch (groqErr: any) {
-                    console.error("Groq Fallback Error:", groqErr);
-                    // Fallback to text if Groq also fails
-                    if (hybridCtx.matchedProjects.length > 0 || hybridCtx.semanticMatches.length > 0 || hybridCtx.matchedSkills.length > 0 || hybridCtx.matchedExperience.length > 0) {
-                       let fallbackText = "Based on Mandeep's portfolio, here is the relevant information:\n\n";
-                       
-                       if (hybridCtx.semanticMatches.length > 0) {
-                         fallbackText += hybridCtx.semanticMatches.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
-                       }
-                       if (hybridCtx.matchedSkills.length > 0) {
-                         fallbackText += "\n\nSkills: " + hybridCtx.matchedSkills.map((s: any) => s.name).join(", ");
-                       }
-                       if (hybridCtx.matchedExperience.length > 0) {
-                         fallbackText += "\n\nExperience:\n" + hybridCtx.matchedExperience.map((e: any) => `- **${e.title}** at ${e.org}`).join("\n");
-                       }
-                       
-                       if (fallbackText !== "Based on Mandeep's portfolio, here is the relevant information:\n\n") {
-                         blocks.push({ type: "text", content: fallbackText.trim() });
-                       }
-                       
-                       if (hybridCtx.matchedProjects.length > 0) {
-                         blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
-                       }
-                    } else {
-                       blocks.push({ type: "error", content: "The AI assistant is temporarily busy. Please try again in a few minutes." });
-                    }
-                  }
-                } else {
-                  // Fallback to text if Groq is not configured
-                  if (hybridCtx.matchedProjects.length > 0 || hybridCtx.semanticMatches.length > 0 || hybridCtx.matchedSkills.length > 0 || hybridCtx.matchedExperience.length > 0) {
-                     let fallbackText = "Based on Mandeep's portfolio, here is the relevant information:\n\n";
-                     
-                     if (hybridCtx.semanticMatches.length > 0) {
-                       fallbackText += hybridCtx.semanticMatches.map((c: any) => `**${c.title}**: ${c.content}`).join("\n\n");
-                     }
-                     if (hybridCtx.matchedSkills.length > 0) {
-                       fallbackText += "\n\nSkills: " + hybridCtx.matchedSkills.map((s: any) => s.name).join(", ");
-                     }
-                     if (hybridCtx.matchedExperience.length > 0) {
-                       fallbackText += "\n\nExperience:\n" + hybridCtx.matchedExperience.map((e: any) => `- **${e.title}** at ${e.org}`).join("\n");
-                     }
-                     
-                     if (fallbackText !== "Based on Mandeep's portfolio, here is the relevant information:\n\n") {
-                       blocks.push({ type: "text", content: fallbackText.trim() });
-                     }
-                     
-                     if (hybridCtx.matchedProjects.length > 0) {
-                       blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
-                     }
-                  } else {
-                     blocks.push({ type: "error", content: "The AI assistant is temporarily busy. Please try again in a few minutes." });
-                  }
-                }
-              } else {
-                 blocks.push({ type: "error", content: "The AI assistant is temporarily busy. Please try again in a few minutes." });
-              }
-            }
-            
-            if (aiResult?.object) {
-               const obj = aiResult.object;
-               intentStr = obj.intent;
-               referencedEntities = obj.referencedEntities || [];
-               
-               if (obj.needsClarification && obj.clarificationQuestion) {
-                 blocks.push({ type: "text", content: obj.clarificationQuestion });
-               } else if (obj.response) {
-                 blocks.push({ type: "text", content: obj.response });
-               }
-               
-               // Render project cards if projects were retrieved and it's a project query
-               if (intentStr.includes("PROJECT") || obj.activeTopic === "Projects") {
-                  if (hybridCtx.matchedProjects.length > 0) {
-                    // Avoid duplicating project cards
-                    if (!blocks.some(b => b.type === "project_card")) {
-                      blocks.push({ type: "project_card", projects: hybridCtx.matchedProjects });
-                    }
-                  }
-               }
-            }
-          }
-
-          if (blocks.length === 0) {
-            blocks.push({ type: "error", content: "The AI assistant is temporarily busy. Please try again in a few minutes." });
-          }
-          
-          controller.enqueue(encoder.encode(streamEvent({ event: "blocks", data: blocks })));
-          
-          // --- 3. MEMORY UPDATE ---
-          const nextMemory = updateMemoryLocally(currentMemory, currentMessages, intentStr, referencedEntities);
-          controller.enqueue(encoder.encode(streamEvent({ event: "memory", data: nextMemory })));
-
-          const suggestions = generateSuggestions(currentMessages, "text");
-          controller.enqueue(encoder.encode(streamEvent({ event: "suggestions", data: suggestions })));
-          
-          controller.enqueue(encoder.encode(streamEvent({ event: "done" })));
-          
-          metrics.responseTime = Date.now() - startTime;
-          console.log("METRICS", metrics);
-          
-        } catch (error: any) {
-          console.error("Agent Error:", error);
-          metrics.responseTime = Date.now() - startTime;
-          console.log("METRICS", metrics);
-          
-          controller.enqueue(
-            encoder.encode(
-              streamEvent({
-                event: "blocks",
-                data: [{ type: "error", content: "The AI assistant is temporarily busy. Please try again in a few minutes." }],
-              }),
-            ),
-          );
-        } finally {
-          controller.close();
-        }
-      },
-    });
-
-    return new Response(stream, {
-      headers: {
-        "Content-Type": "application/x-ndjson; charset=utf-8",
-        "Cache-Control": "no-cache, no-transform",
-        "X-Content-Type-Options": "nosniff",
-        "X-Accel-Buffering": "no",
-      },
-    });
-  } catch (error) {
-    const message = error instanceof ZodError ? "Invalid chat request." : "Unable to process the chat request.";
-    return Response.json({ error: message }, { status: 400 });
+  const body: unknown = await request.json().catch(() => null);
+  const parsed = chatRequestSchema.safeParse(body);
+  if (!parsed.success) {
+    return Response.json({ error: "Invalid chat request." }, { status: 400 });
   }
+
+  const { messages, memory } = parsed.data;
+  const lastMessage = messages.at(-1);
+  if (!lastMessage || lastMessage.role !== "user" || !lastMessage.content.trim()) {
+    return Response.json({ error: "The last message must be a user question." }, { status: 400 });
+  }
+
+  const question = lastMessage.content.trim();
+  const history = messages.slice(0, -1).filter((message) => message.content.trim());
+  const encoder = new TextEncoder();
+
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const send = (value: unknown) => controller.enqueue(encoder.encode(streamEvent(value)));
+      const startedAt = Date.now();
+      let route = "local";
+
+      try {
+        send({ event: "thinking" });
+
+        const portfolio = await getPortfolio();
+        const localIntent = detectLocalIntent(question);
+        let answer: Answer;
+
+        if (localIntent) {
+          answer = {
+            blocks: await answerLocalIntent(localIntent, question, portfolio),
+            intent: localIntent,
+            referencedEntities: [],
+          };
+        } else {
+          route = "model";
+          answer = await answerWithModel(question, history, memory, portfolio);
+        }
+
+        send({ event: "blocks", data: answer.blocks });
+        send({
+          event: "memory",
+          data: updateMemoryLocally(memory, messages, answer.intent, answer.referencedEntities),
+        });
+        send({ event: "suggestions", data: generateSuggestions(messages, "text") });
+        send({ event: "done" });
+      } catch (error) {
+        console.error("Chat error:", error);
+        send({ event: "blocks", data: [{ type: "error", content: BUSY_MESSAGE }] });
+      } finally {
+        console.info("chat", { route, ms: Date.now() - startedAt });
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
+      "X-Content-Type-Options": "nosniff",
+      "X-Accel-Buffering": "no",
+    },
+  });
 }

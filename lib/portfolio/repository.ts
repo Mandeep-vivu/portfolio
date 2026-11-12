@@ -39,10 +39,17 @@ async function upstashCommand(command: unknown[]) {
 
 export async function getPortfolio(): Promise<PortfolioData> {
   if (upstashConfigured()) {
-    const response = await upstashCommand(["GET", CONTENT_KEY]);
-    if (typeof response?.result === "string") {
-      const parsed = portfolioSchema.safeParse(JSON.parse(response.result));
-      if (parsed.success) return parsed.data;
+    // The public site renders from this call, so a storage outage or corrupt
+    // record must degrade to the bundled content rather than a 500.
+    try {
+      const response = await upstashCommand(["GET", CONTENT_KEY]);
+      if (typeof response?.result === "string") {
+        const parsed = portfolioSchema.safeParse(JSON.parse(response.result));
+        if (parsed.success) return parsed.data;
+        console.error("Stored portfolio content failed validation:", parsed.error.issues);
+      }
+    } catch (error) {
+      console.error("Unable to read stored portfolio content:", error);
     }
   }
 
@@ -79,32 +86,4 @@ export function getContentStorageMode() {
   if (upstashConfigured()) return "upstash";
   if (process.env.NODE_ENV === "production") return "readonly";
   return "memory";
-}
-
-export async function getProfile() {
-  return (await getPortfolio()).profile;
-}
-
-export async function getProjects() {
-  return (await getPortfolio()).projects;
-}
-
-export async function getSkills() {
-  return (await getPortfolio()).skills;
-}
-
-export async function getEducation() {
-  return (await getPortfolio()).education;
-}
-
-export async function getExperience() {
-  return (await getPortfolio()).experience;
-}
-
-export async function getCertifications() {
-  return (await getPortfolio()).certifications;
-}
-
-export async function getContact() {
-  return (await getPortfolio()).contact;
 }

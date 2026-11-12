@@ -1,7 +1,6 @@
 import "server-only";
 
 import { embed } from "ai";
-import { getAIModel } from "./gemini";
 import fs from "fs/promises";
 import path from "path";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
@@ -13,7 +12,7 @@ export type VectorChunk = {
   type: "profile" | "project" | "skill" | "education" | "experience" | "certification";
   title: string;
   content: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
   embedding: number[];
 };
 
@@ -33,7 +32,7 @@ function getEmbeddingModel() {
     return google.textEmbeddingModel("gemini-embedding-2");
   }
 
-  throw new Error("No embedding model configured.");
+  return null;
 }
 
 function cosineSimilarity(vecA: number[], vecB: number[]): number {
@@ -74,8 +73,13 @@ export async function retrieveRAGContext(query: string, limit = 5): Promise<{ ch
     return { chunks: [], confidence: 0 };
   }
 
+  // Without an embedding provider there is nothing to compare against;
+  // callers fall back to local keyword search.
   const model = getEmbeddingModel();
-  
+  if (!model) {
+    return { chunks: [], confidence: 0 };
+  }
+
   // Generate embedding for the search query
   const { embedding: queryEmbedding } = await embed({
     model,
@@ -83,11 +87,10 @@ export async function retrieveRAGContext(query: string, limit = 5): Promise<{ ch
   });
 
   // Score all chunks
-  const scoredChunks: RetrievedChunk[] = store.map(chunk => {
-    const score = cosineSimilarity(queryEmbedding || [], chunk.embedding || []);
-    const { embedding, ...rest } = chunk;
-    return { ...rest, score };
-  });
+  const scoredChunks: RetrievedChunk[] = store.map(({ embedding, ...rest }) => ({
+    ...rest,
+    score: cosineSimilarity(queryEmbedding ?? [], embedding ?? []),
+  }));
 
   // Sort descending
   scoredChunks.sort((a, b) => b.score - a.score);

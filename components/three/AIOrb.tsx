@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, Suspense, useState, useEffect } from "react";
+import React, { useRef, Suspense, useSyncExternalStore } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Sphere, MeshDistortMaterial, Float, Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -60,20 +60,17 @@ function OrbMesh() {
 
 // Class-based Error Boundary to catch runtime WebGL failures
 class WebGLErrorBoundary extends React.Component<{ children: React.ReactNode; fallback: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false };
-  }
+  override state = { hasError: false };
 
   static getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  componentDidCatch(error: any, errorInfo: any) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.warn("WebGL Canvas failed to render, falling back to CSS Orb:", error, errorInfo);
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return this.props.fallback;
     }
@@ -89,17 +86,25 @@ function isWebGLAvailable() {
       window.WebGLRenderingContext &&
       (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
     );
-  } catch (e) {
+  } catch {
     return false;
   }
 }
 
-export default function AIOrb() {
-  const [hasWebGL, setHasWebGL] = useState<boolean | null>(null);
+// WebGL support never changes during a session, so there is nothing to
+// subscribe to; the store only separates the server render (unknown) from the
+// client (detected once).
+let webGLSupport: boolean | undefined;
+const subscribeToNothing = () => () => {};
+const getWebGLSnapshot = () => (webGLSupport ??= isWebGLAvailable());
+const getWebGLServerSnapshot = () => null;
 
-  useEffect(() => {
-    setHasWebGL(isWebGLAvailable());
-  }, []);
+export default function AIOrb() {
+  const hasWebGL = useSyncExternalStore<boolean | null>(
+    subscribeToNothing,
+    getWebGLSnapshot,
+    getWebGLServerSnapshot,
+  );
 
   const fallbackOrb = (
     <div className="relative flex items-center justify-center w-full h-full min-h-[300px]">

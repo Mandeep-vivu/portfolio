@@ -1,64 +1,46 @@
 "use client";
-import { useState } from "react";
+
 import dynamic from "next/dynamic";
-
-// Layout
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import CustomCursor from "@/components/layout/CustomCursor";
-
-// Sections
-import LoadingScreen from "@/components/sections/LoadingScreen";
-import Hero from "@/components/sections/Hero";
-import About from "@/components/sections/About";
-import Skills from "@/components/sections/Skills";
-import Projects from "@/components/sections/Projects";
-import Timeline from "@/components/sections/Timeline";
-import Achievements from "@/components/sections/Achievements";
-import Contact from "@/components/sections/Contact";
 import ChatErrorBoundary from "@/components/ai/ChatErrorBoundary";
-const AIChat = dynamic(() => import("@/components/ai/AIChat"), { ssr: false });
 import { PortfolioProvider } from "@/components/providers/PortfolioProvider";
+import About from "@/components/v2/About";
+import ContactSection from "@/components/v2/ContactSection";
+import Hero from "@/components/v2/Hero";
+import Path from "@/components/v2/Path";
+import Recognition from "@/components/v2/Recognition";
+import SiteFooter from "@/components/v2/SiteFooter";
+import SiteHeader from "@/components/v2/SiteHeader";
+import Skills from "@/components/v2/Skills";
+import Work from "@/components/v2/Work";
 import type { PortfolioData } from "@/lib/portfolio/types";
 
-// Particles (client-only, SSR=false)
-const ParticleField = dynamic(() => import("@/components/three/ParticleField"), { ssr: false });
+const AIChat = dynamic(() => import("@/components/ai/AIChat"), { ssr: false });
 
 export default function HomeClient({ portfolio }: { portfolio: PortfolioData }) {
-  const [loaded, setLoaded] = useState(false);
-
   return (
     <PortfolioProvider portfolio={portfolio}>
-      {!loaded && <LoadingScreen onComplete={() => setLoaded(true)} />}
-
-      <div className="relative min-h-screen" style={{ position: "relative", zIndex: 1 }}>
-          {/* Animated background grid */}
-          <div className="grid-bg" aria-hidden />
-
-          {/* Floating particle field */}
-          <ParticleField count={50} />
-
-          {/* Custom cursor */}
-          <CustomCursor />
-
-          {/* Navigation */}
-          <Navbar />
-
-          {/* Main content */}
-          <main className="relative z-10">
-            <Hero isLoading={!loaded} />
-            <About />
-            <Skills />
-            <Projects />
-            <Timeline />
-            <Achievements />
-            <Contact />
-          </main>
-
-          <Footer />
-          <ChatErrorBoundary>
-            <AIChat />
-          </ChatErrorBoundary>
+      <a
+        href="#work"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[6px] focus:bg-ink focus:px-4 focus:py-3 focus:text-white"
+      >
+        Skip to work
+      </a>
+      <SiteHeader />
+      <main>
+        <Hero />
+        <Work />
+        <About />
+        <Skills />
+        <Path />
+        <Recognition />
+        <ContactSection />
+      </main>
+      <SiteFooter />
+      {/* The assistant keeps its own dark panel; its text colours inherit from here. */}
+      <div className="dark text-white">
+        <ChatErrorBoundary>
+          <AIChat />
+        </ChatErrorBoundary>
       </div>
     </PortfolioProvider>
   );

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import ChatMessage, { type UIMessage } from "./ChatMessage";
 import type { AgentResult, Block, ConversationMemory } from "@/lib/ai/schemas";
+import { ASK_EVENT, type AskDetail } from "@/components/v2/ask";
 
 interface StreamEvent {
   event: "result" | "blocks" | "delta" | "done" | "error" | "thinking" | "suggestions" | "memory";
@@ -318,6 +319,23 @@ export default function AIChat() {
     event.preventDefault();
     void submit(input);
   };
+
+  // The page can open the chat, optionally with a question to send, by
+  // dispatching ASK_EVENT (see components/v2/ask.ts).
+  const submitRef = useRef(submit);
+  useEffect(() => {
+    submitRef.current = submit;
+  }, [submit]);
+
+  useEffect(() => {
+    const onAsk = (event: Event) => {
+      setOpen(true);
+      const prompt = (event as CustomEvent<AskDetail>).detail?.prompt;
+      if (prompt) void submitRef.current(prompt);
+    };
+    window.addEventListener(ASK_EVENT, onAsk);
+    return () => window.removeEventListener(ASK_EVENT, onAsk);
+  }, []);
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {

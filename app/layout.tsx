@@ -1,25 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import CalendlyBadge from "@/components/CalendlyBadge";
 import { SITE_URL } from "@/lib/site";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
+// Archivo (SIL Open Font License, see app/fonts/OFL.txt), self-hosted so the
+// build does not depend on Google Fonts. One variable file covers every
+// weight and width the design uses.
+const archivo = localFont({
+  src: "./fonts/archivo-latin-variable.woff2",
+  variable: "--font-archivo",
+  weight: "100 900",
   display: "swap",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
+  declarations: [{ prop: "font-stretch", value: "62% 125%" }],
 });
 
 export const metadata: Metadata = {
@@ -52,7 +45,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     title: "Mandeep Singh — AI/ML Engineer & Full Stack Developer",
     description:
-      "Futuristic portfolio of Mandeep Singh — AI/ML Engineer, Data Scientist & Full Stack Developer.",
+      "Portfolio of Mandeep Singh, an AI/ML engineer working on graph networks for power-grid faults and deep learning for ECG diagnosis.",
     siteName: "Mandeep Singh Portfolio",
   },
   twitter: {
@@ -68,7 +61,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#030712",
+  themeColor: "#f2f4f7",
 };
 
 export default function RootLayout({
@@ -79,9 +72,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} dark`}
+      className={archivo.variable}
     >
-      <body className="dark bg-background text-white antialiased" suppressHydrationWarning>
+      <body className="antialiased" suppressHydrationWarning>
         {children}
         <CalendlyBadge />
       </body>

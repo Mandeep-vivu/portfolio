@@ -1,7 +1,11 @@
 # Mandeep Singh Portfolio
 
 A production-oriented AI portfolio built with Next.js 16, React 19, TypeScript,
-Tailwind CSS 4, Framer Motion, Three.js, Gemini, Upstash Redis, and Vercel Blob.
+Tailwind CSS 4, Framer Motion, Gemini, Upstash Redis, and Vercel Blob.
+
+This branch is version 2 of the interface: a light, typographic layout in
+`components/v2/`, set in self-hosted Archivo. Version 1 (the dark animated
+design) lives on the `claude/repo-improvements` branch.
 
 ## Features
 

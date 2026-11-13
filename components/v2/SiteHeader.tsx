@@ -3,6 +3,7 @@
 import { Download } from "lucide-react";
 import { usePortfolio } from "@/components/providers/PortfolioProvider";
 import { safeHref } from "@/lib/url";
+import DesignToggle from "@/components/design/DesignToggle";
 import { Container } from "./Shell";
 
 const LINKS = [
@@ -35,17 +36,20 @@ export default function SiteHeader() {
             ))}
           </ul>
         </nav>
-        {resume && (
-          <a
-            href={resume}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center gap-2 rounded-[6px] bg-ink px-4 py-2.5 text-[0.9rem] font-semibold leading-none text-white transition-colors hover:bg-cobalt"
-          >
-            <Download size={15} aria-hidden />
-            Résumé
-          </a>
-        )}
+        <div className="flex shrink-0 items-center gap-2">
+          <DesignToggle className="rounded-[6px] border border-ink/25 text-ink hover:border-ink hover:bg-sheet" />
+          {resume && (
+            <a
+              href={resume}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex shrink-0 items-center gap-2 rounded-[6px] bg-ink px-4 py-2.5 text-[0.9rem] font-semibold leading-none text-white transition-colors hover:bg-cobalt"
+            >
+              <Download size={15} aria-hidden />
+              Résumé
+            </a>
+          )}
+        </div>
       </Container>
       {/* Small screens: the same links as one swipeable row, no menu to open. */}
       <nav aria-label="Sections" className="border-t border-ink/10 md:hidden">

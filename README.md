@@ -3,9 +3,18 @@
 A production-oriented AI portfolio built with Next.js 16, React 19, TypeScript,
 Tailwind CSS 4, Framer Motion, Gemini, Upstash Redis, and Vercel Blob.
 
-This branch is version 2 of the interface: a light, typographic layout in
-`components/v2/`, set in self-hosted Archivo. Version 1 (the dark animated
-design) lives on the `claude/repo-improvements` branch.
+The site ships two designs that visitors switch between with the sun/moon
+button in the header, like a light/dark mode:
+
+- **Light** (version 2): a typographic layout in `components/v2/`, set in Archivo.
+- **Dark** (version 1): the animated layout in `components/v1/`, with the
+  WebGL orb and particle field.
+
+The choice is stored in a `design` cookie and read on the server, so returning
+visitors get their design on first paint. Switching keeps the visitor on the
+same section and keeps the chat conversation. First-time visitors see the
+design set by `DEFAULT_DESIGN` in `lib/design.ts`. Global element styles are
+scoped per design with `html[data-design]` in `app/globals.css`.
 
 ## Features
 

@@ -2,17 +2,44 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import CalendlyBadge from "@/components/CalendlyBadge";
+import { THEME_COLOR } from "@/lib/design";
+import { getDesign } from "@/lib/design-server";
 import { SITE_URL } from "@/lib/site";
 
-// Archivo (SIL Open Font License, see app/fonts/OFL.txt), self-hosted so the
-// build does not depend on Google Fonts. One variable file covers every
-// weight and width the design uses.
+// All fonts are self-hosted (SIL Open Font License, see app/fonts/OFL-*.txt)
+// so builds do not depend on Google Fonts. Browsers only download the files
+// the active design uses; the dark design's fonts are not preloaded because
+// most visitors start on the light one.
 const archivo = localFont({
   src: "./fonts/archivo-latin-variable.woff2",
   variable: "--font-archivo",
   weight: "100 900",
   display: "swap",
   declarations: [{ prop: "font-stretch", value: "62% 125%" }],
+});
+
+const inter = localFont({
+  src: "./fonts/inter-latin-variable.woff2",
+  variable: "--font-inter",
+  weight: "100 900",
+  display: "swap",
+  preload: false,
+});
+
+const spaceGrotesk = localFont({
+  src: "./fonts/space-grotesk-latin-variable.woff2",
+  variable: "--font-space-grotesk",
+  weight: "300 700",
+  display: "swap",
+  preload: false,
+});
+
+const jetbrainsMono = localFont({
+  src: "./fonts/jetbrains-mono-latin-variable.woff2",
+  variable: "--font-jetbrains-mono",
+  weight: "100 800",
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -60,11 +87,11 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = {
-  themeColor: "#f2f4f7",
-};
+export async function generateViewport(): Promise<Viewport> {
+  return { themeColor: THEME_COLOR[await getDesign()] };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -72,7 +99,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={archivo.variable}
+      data-design={await getDesign()}
+      className={`${archivo.variable} ${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
       <body className="antialiased" suppressHydrationWarning>
         {children}

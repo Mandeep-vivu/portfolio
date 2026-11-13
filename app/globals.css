@@ -1,8 +1,19 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+/*
+ * The site has two designs that visitors switch between (see lib/design.ts).
+ * The root layout sets <html data-design="light|dark">, and every rule that
+ * styles bare elements (html, body, headings, scrollbars, focus rings) is
+ * scoped to one design so neither leaks into the other. Class-based rules
+ * are only used by their own design and stay global.
+ *
+ *   light  version 2, components/v2
+ *   dark   version 1, components/v1
+ */
+
 @theme {
-  /* Version 2 palette: cool paper, ink, one signal colour, one flag colour. */
+  /* Light design: cool paper, ink, one signal colour, one flag colour. */
   --color-paper: #f2f4f7;
   --color-sheet: #ffffff;
   --color-ink: #0c1626;
@@ -11,7 +22,7 @@
   --color-cobalt: #2340e8;
   --color-amber: #e8940a;
 
-  /* Tokens the chat panel and admin screen are built on. */
+  /* Dark design, also used by the chat panel and the admin screen. */
   --color-background: #030712;
   --color-surface: #0f1729;
   --color-surface2: #111827;
@@ -24,17 +35,32 @@
   --color-border: rgba(99, 102, 241, 0.2);
   --color-glow: rgba(99, 102, 241, 0.4);
 
+  /* Light design fonts; the dark design swaps these below. */
   --font-display: var(--font-archivo), system-ui, sans-serif;
   --font-body: var(--font-archivo), system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
 
   --shadow-neon-sm: 0 0 10px rgba(99, 102, 241, 0.5);
+  --shadow-neon-md: 0 0 20px rgba(99, 102, 241, 0.6), 0 0 40px rgba(99, 102, 241, 0.3);
+  --shadow-neon-cyan: 0 0 20px rgba(6, 182, 212, 0.6), 0 0 40px rgba(6, 182, 212, 0.3);
+  --shadow-card: 0 10px 35px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-card-hover: 0 18px 55px rgba(0, 0, 0, 0.55), 0 0 30px rgba(99, 102, 241, 0.16);
 
   --radius-sm: 0.875rem;
   --radius: 1rem;
   --radius-lg: 1.5rem;
   --radius-xl: 2rem;
 }
+
+:root {
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --glow-cyan: rgba(6, 182, 212, 0.4);
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared base                                                         */
+/* ------------------------------------------------------------------ */
 
 *,
 *::before,
@@ -44,7 +70,6 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
 }
@@ -52,23 +77,703 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-body);
-  font-size: 1.0625rem;
   line-height: 1.6;
   overflow-x: hidden;
 }
 
-::selection {
+/* ------------------------------------------------------------------ */
+/* Light design (version 2)                                            */
+/* ------------------------------------------------------------------ */
+
+:root:not([data-design="dark"]) {
+  color-scheme: light;
+  scroll-padding-top: 5rem;
+}
+
+:root:not([data-design="dark"]) body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+}
+
+:root:not([data-design="dark"]) ::selection {
   background: var(--color-cobalt);
   color: #fff;
 }
 
-:focus-visible {
+:root:not([data-design="dark"]) :focus-visible {
   outline: 2px solid var(--color-cobalt);
   outline-offset: 3px;
 }
+
+/* ------------------------------------------------------------------ */
+/* Dark design (version 1)                                             */
+/* ------------------------------------------------------------------ */
+
+:root[data-design="dark"] {
+  --font-display: var(--font-space-grotesk), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+  color-scheme: dark;
+  scroll-padding-top: 5.5rem;
+}
+
+:root[data-design="dark"] body {
+  background:
+    radial-gradient(circle at top, rgba(99, 102, 241, 0.08), transparent 32%),
+    radial-gradient(circle at right top, rgba(6, 182, 212, 0.05), transparent 28%),
+    linear-gradient(180deg, #030712 0%, #040817 50%, #030712 100%);
+  color: var(--text);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* The custom cursor sets data-cursor while it is drawing; only then is the
+   system cursor hidden, and only for mouse users. */
+@media (pointer: fine) {
+  :root[data-design="dark"][data-cursor="custom"] body {
+    cursor: none;
+  }
+}
+
+:root[data-design="dark"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.45;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 95%);
+}
+
+:root[data-design="dark"] :is(img, svg, video, canvas) {
+  max-width: 100%;
+}
+
+:root[data-design="dark"] :is(p, h1, h2, h3, h4, h5, h6) {
+  overflow-wrap: break-word;
+}
+
+:root[data-design="dark"] :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+:root[data-design="dark"] :is(code, pre, .font-mono) {
+  font-family: var(--font-mono), monospace;
+}
+
+:root[data-design="dark"] ::selection {
+  background: rgba(99, 102, 241, 0.35);
+  color: #fff;
+}
+
+:root[data-design="dark"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+:root[data-design="dark"] ::-webkit-scrollbar-track {
+  background: #030712;
+}
+
+:root[data-design="dark"] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6366f1, #06b6d4);
+  border-radius: 9999px;
+}
+
+:root[data-design="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #7c83ff, #22d3ee);
+}
+
+:root[data-design="dark"] :focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.9);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared helpers                                                      */
+/* ------------------------------------------------------------------ */
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* The chat input sits inside its own bordered field, which shows focus. */
+.dark textarea:focus-visible {
+  outline: none;
+}
+
+/* Switching designs cross-fades the whole page (see DesignProvider). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 280ms;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark design components                                              */
+/* ------------------------------------------------------------------ */
+
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  will-change: background-position;
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px);
+  background-size: 64px 64px;
+  animation: gridDrift 30s linear infinite;
+}
+
+@keyframes gridDrift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 64px 64px;
+  }
+}
+
+.glass {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+    rgba(15, 23, 41, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 40%);
+}
+
+.glass-dark {
+  position: relative;
+  overflow: hidden;
+  background: rgba(3, 7, 18, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.surface-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 28%),
+    rgba(15, 23, 41, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.surface-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  pointer-events: none;
+}
+
+.glow-text {
+  text-shadow: 0 0 18px rgba(99, 102, 241, 0.75), 0 0 38px rgba(99, 102, 241, 0.35);
+}
+
+.glow-text-cyan {
+  text-shadow: 0 0 18px rgba(0, 216, 255, 0.75), 0 0 38px rgba(0, 216, 255, 0.35);
+}
+
+.glow-border {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glow-border-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 4s ease infinite;
+}
+
+.gradient-text-warm {
+  background: linear-gradient(135deg, #a78bfa, #06b6d4, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+.noise-overlay {
+  position: relative;
+}
+
+.noise-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.55), transparent);
+  z-index: 9998;
+  pointer-events: none;
+  animation: scanLine 8s linear infinite;
+}
+
+@keyframes scanLine {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100dvh);
+    opacity: 0;
+  }
+}
+
+.loading-bar {
+  background: linear-gradient(90deg, #6366f1, #06b6d4, #8b5cf6);
+  background-size: 200% 100%;
+  animation: shimmerBar 1.5s linear infinite;
+}
+
+@keyframes shimmerBar {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.spotlight {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(
+    600px circle at var(--x, 50%) var(--y, 50%),
+    rgba(99, 102, 241, 0.06) 0%,
+    transparent 80%
+  );
+  transition: background 0.1s;
+}
+
+.section-divider {
+  display: block;
+  width: 100%;
+  height: 1px;
+  border: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(99, 102, 241, 0.4),
+    rgba(6, 182, 212, 0.4),
+    transparent
+  );
+}
+
+.skill-bar-track {
+  height: 6px;
+  overflow: hidden;
+  background: rgba(99, 102, 241, 0.12);
+  border-radius: 9999px;
+}
+
+.skill-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #6366f1, #06b6d4);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+  transform-origin: left;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom, transparent, #6366f1, #06b6d4, transparent);
+}
+
+@media (max-width: 768px) {
+  .timeline-line {
+    left: 20px;
+    transform: none;
+  }
+}
+
+.neon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.1);
+  color: #a78bfa;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.neon-badge:hover {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.7);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.35);
+  color: #fff;
+}
+
+.card-tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-tilt:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.particle {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0.35;
+  animation: floatParticle var(--duration, 8s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes floatParticle {
+  0%, 100% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.25;
+  }
+  33% {
+    transform: translateY(-30px) translateX(20px) scale(1.08);
+    opacity: 0.55;
+  }
+  66% {
+    transform: translateY(15px) translateX(-15px) scale(0.94);
+    opacity: 0.38;
+  }
+}
+
+.section-padding {
+  scroll-margin-top: 5.5rem;
+  padding-top: 1.25rem;     /* 20px */
+  padding-bottom: 2.25rem;  /* 36px */
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (max-width: 767px) {
+  :root[data-design="dark"] {
+    scroll-padding-top: 5.25rem;
+  }
+
+  :root[data-design="dark"] body::before {
+    opacity: 0.32;
+    background-size: 54px 54px;
+  }
+
+  .grid-bg {
+    opacity: 0.78;
+    background-size: 52px 52px;
+  }
+
+  .section-padding {
+    scroll-margin-top: 5.25rem;
+    padding-top: 3.25rem;
+    padding-bottom: 4rem;
+  }
+
+  .glass,
+  .glass-dark,
+  .surface-panel {
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .neon-badge {
+    max-width: 100%;
+    line-height: 1.2;
+    white-space: normal;
+  }
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding-top: 1.5rem;    /* 24px */
+    padding-bottom: 2.75rem; /* 44px */
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .section-padding {
+    padding-top: 1.75rem;    /* 28px */
+    padding-bottom: 3.25rem; /* 52px */
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+.counter-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.counter-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(6, 182, 212, 0.05));
+  pointer-events: none;
+}
+
+.cmd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.text-gradient-primary {
+  background: linear-gradient(90deg, #6366f1, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.border-gradient {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(#0f1729, #0f1729) padding-box,
+    linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(6, 182, 212, 0.5)) border-box;
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.hover-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.35);
+}
+
+/* ------------------------------------------------------------------ */
+/* Chat markdown — styles for rendered markdown inside chat bubbles   */
+/* ------------------------------------------------------------------ */
+
+.chat-markdown p {
+  margin: 0.35em 0;
+  line-height: 1.65;
+}
+
+.chat-markdown p:first-child {
+  margin-top: 0;
+}
+
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-markdown strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.chat-markdown em {
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+.chat-markdown h1,
+.chat-markdown h2,
+.chat-markdown h3,
+.chat-markdown h4 {
+  color: #fff;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  margin: 0.8em 0 0.3em;
+  line-height: 1.3;
+}
+
+.chat-markdown h1:first-child,
+.chat-markdown h2:first-child,
+.chat-markdown h3:first-child,
+.chat-markdown h4:first-child {
+  margin-top: 0;
+}
+
+.chat-markdown h1 { font-size: 1.05em; }
+.chat-markdown h2 { font-size: 0.95em; }
+.chat-markdown h3 { font-size: 0.9em; }
+.chat-markdown h4 { font-size: 0.85em; }
+
+.chat-markdown ul,
+.chat-markdown ol {
+  margin: 0.4em 0;
+  padding-left: 1.3em;
+}
+
+.chat-markdown ul {
+  list-style: none;
+}
+
+.chat-markdown ul li {
+  position: relative;
+  padding-left: 0.15em;
+  margin: 0.2em 0;
+}
+
+.chat-markdown ul li::before {
+  content: "▸";
+  position: absolute;
+  left: -1.1em;
+  color: #06b6d4;
+  font-size: 0.7em;
+  top: 0.25em;
+}
+
+.chat-markdown ol {
+  list-style: decimal;
+}
+
+.chat-markdown ol li {
+  margin: 0.2em 0;
+  padding-left: 0.15em;
+}
+
+.chat-markdown ol li::marker {
+  color: #06b6d4;
+  font-weight: 600;
+  font-size: 0.8em;
+}
+
+.chat-markdown blockquote {
+  margin: 0.5em 0;
+  padding: 0.4em 0.75em;
+  border-left: 2px solid rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.06);
+  border-radius: 0 6px 6px 0;
+  color: #cbd5e1;
+  font-size: 0.92em;
+}
+
+.chat-markdown hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.35), transparent);
+  margin: 0.6em 0;
+}
+
+.chat-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  font-size: 0.85em;
+}
+
+.chat-markdown th {
+  text-align: left;
+  padding: 0.35em 0.5em;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.chat-markdown td {
+  padding: 0.3em 0.5em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+}
+
+.chat-markdown pre {
+  margin: 0.5em 0;
+  padding: 0.6em 0.75em;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.78em;
+  line-height: 1.5;
+}
+
+.chat-markdown pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: #e2e8f0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Light design components                                             */
+/* ------------------------------------------------------------------ */
 
 /* Archivo is a variable font with a width axis; the whole type system is one
    family set at three widths. */
@@ -83,14 +788,6 @@ body {
 .t-figure {
   font-stretch: 125%;
   font-variant-numeric: tabular-nums;
-}
-
-.hide-scrollbar {
-  scrollbar-width: none;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
 }
 
 /* The hero's one orchestrated moment: the trace draws in, then the abnormal
@@ -129,9 +826,4 @@ body {
     stroke-dashoffset: 0;
     opacity: 1;
   }
-}
-
-/* The chat input sits inside its own bordered field, which shows focus. */
-.dark textarea:focus-visible {
-  outline: none;
 }
